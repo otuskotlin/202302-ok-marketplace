@@ -8,9 +8,9 @@ class exercise1KtTest {
     @Test
     fun rectangleArea() {
         /*val r = Rectangle(10, 20)
-        assertEquals(r.area(), 200)
-        assertEquals(r.width, 10)
-        assertEquals(r.height, 20)*/
+        assertEquals(200, r.area())
+        assertEquals(10, r.width)
+        assertEquals(20, r.height)*/
     }
 
     // задание 2 - сделать метод Rectangle.toString()
@@ -18,7 +18,7 @@ class exercise1KtTest {
     @Test
     fun rectangleToString() {
         /*val r = Rectangle(10, 20)
-        assertEquals(r.toString(), "Rectangle(10x20)")
+        assertEquals("Rectangle(10x20)", r.toString())
         */
     }
 
