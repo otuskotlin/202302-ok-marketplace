@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
     kotlin("jvm")
@@ -19,7 +20,7 @@ subprojects {
     tasks.withType<KotlinCompile> {
         kotlinOptions.jvmTarget = "17"
     }
-//    tasks.withType<KotlinCompile> {
-//        kotlinOptions.jvmTarget = "17"
-//    }
+    tasks.withType<KotlinJvmCompile> {
+        kotlinOptions.jvmTarget = "17"
+    }
 }
