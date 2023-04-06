@@ -1,5 +1,6 @@
 package ru.otus.otuskotlin.marketplace.blackbox
 
+import io.ktor.http.*
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.utility.DockerImageName
 
@@ -14,6 +15,12 @@ class AppContainer private constructor() {
 
     val host: String = container.host
     val port: Int = container.getMappedPort(_port)
+
+    val url: Url = URLBuilder(
+        protocol = URLProtocol.HTTP,
+        host = host,
+        port = port,
+    ).build()
 
     fun close() {
         container.close()
