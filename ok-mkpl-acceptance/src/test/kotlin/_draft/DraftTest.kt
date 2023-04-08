@@ -23,7 +23,7 @@ class DraftTest : FunSpec({
     test("container test") {
         val result = client
             .get {
-                url("http://${AppContainer.C.host}:${AppContainer.C.port}")
+                url(AppContainer.C.url)
             }
             .call
         val resp = result.response

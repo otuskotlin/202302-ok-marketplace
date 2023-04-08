@@ -15,6 +15,7 @@ dependencies {
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.kotest:kotest-framework-datatest:$kotestVersion")
     testImplementation("io.kotest:kotest-property:$kotestVersion")
+
     testImplementation("org.testcontainers:testcontainers:$testcontainersVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
 
@@ -31,7 +32,7 @@ tasks {
     test {
         systemProperty("kotest.framework.test.severity", "NORMAL")
     }
-    create<Test>("test4test") {
+    create<Test>("test-strict") {
         systemProperty("kotest.framework.test.severity", "MINOR")
         group = "verification"
     }
