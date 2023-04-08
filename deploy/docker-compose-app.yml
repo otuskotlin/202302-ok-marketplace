@@ -1,8 +1,4 @@
-# Минимальная версия инфраструктуры на базе
-# OpenSearch
-# OpenSearch Dashboards
-# Kafka
-# Logstash
+# Этот компоуз применяется для приемочного автоматического тестирования
 
 version: '3'
 services:
