@@ -8,7 +8,7 @@ import kotlin.test.assertContains
 import kotlin.test.assertEquals
 
 class RequestSerializationTest {
-    private val request: IRequest = AdCreateRequest(
+    private val request : IRequest = AdCreateRequest(
         requestType = "create",
         requestId = "123",
         debug = AdDebug(
@@ -38,6 +38,18 @@ class RequestSerializationTest {
     }
 
     @Test
+    fun serializeWithoutType() {
+        val json = apiV2Mapper.encodeToString((request as AdCreateRequest).copy(requestType = null) as IRequest)
+
+        println(json)
+
+        assertContains(json, Regex("\"title\":\\s*\"ad title\""))
+        assertContains(json, Regex("\"mode\":\\s*\"stub\""))
+        assertContains(json, Regex("\"stub\":\\s*\"badTitle\""))
+        assertContains(json, Regex("\"requestType\":\\s*\"create\""))
+    }
+
+    @Test
     fun deserialize() {
         val json = apiV2Mapper.encodeToString(request)
 //        val json = apiV2Mapper.encodeToString(AdRequestSerializer1, request)
@@ -50,10 +62,16 @@ class RequestSerializationTest {
     @Test
     fun deserializeNaked() {
         val jsonString = """
-            {"requestId": "123"}
+            {
+            "requestType":"create",
+            "requestId":"123",
+            "debug":{"mode":"stub","stub":"badTitle"},
+            "ad":{"title":"ad title","description":"ad description","adType":"demand","visibility":"public","productId":null}
+            }
         """.trimIndent()
-        val obj = apiV2Mapper.decodeFromString<AdCreateRequest>(jsonString)
+        val obj = apiV2Mapper.decodeFromString(jsonString) as IRequest
 
         assertEquals("123", obj.requestId)
+        assertEquals(request, obj)
     }
 }

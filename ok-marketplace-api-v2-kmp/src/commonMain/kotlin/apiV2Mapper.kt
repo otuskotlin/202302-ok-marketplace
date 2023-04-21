@@ -1,64 +1,123 @@
+@file:OptIn(ExperimentalSerializationApi::class, InternalSerializationApi::class)
+
 package ru.otus.otuskotlin.marketplace.api.v2
 
+import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.SerializationStrategy
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonContentPolymorphicSerializer
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.contextual
-import ru.otus.otuskotlin.marketplace.api.v2.models.*
+import kotlinx.serialization.modules.SerializersModuleBuilder
+import kotlinx.serialization.serializer
+import ru.otus.otuskotlin.marketplace.api.v2.models.AdCreateRequest
+import ru.otus.otuskotlin.marketplace.api.v2.models.AdCreateResponse
+import ru.otus.otuskotlin.marketplace.api.v2.models.AdDeleteRequest
+import ru.otus.otuskotlin.marketplace.api.v2.models.AdDeleteResponse
+import ru.otus.otuskotlin.marketplace.api.v2.models.AdInitResponse
+import ru.otus.otuskotlin.marketplace.api.v2.models.AdOffersRequest
+import ru.otus.otuskotlin.marketplace.api.v2.models.AdOffersResponse
+import ru.otus.otuskotlin.marketplace.api.v2.models.AdReadRequest
+import ru.otus.otuskotlin.marketplace.api.v2.models.AdReadResponse
+import ru.otus.otuskotlin.marketplace.api.v2.models.AdSearchRequest
+import ru.otus.otuskotlin.marketplace.api.v2.models.AdSearchResponse
+import ru.otus.otuskotlin.marketplace.api.v2.models.AdUpdateRequest
+import ru.otus.otuskotlin.marketplace.api.v2.models.AdUpdateResponse
+import ru.otus.otuskotlin.marketplace.api.v2.models.IRequest
+import ru.otus.otuskotlin.marketplace.api.v2.models.IResponse
+import kotlin.reflect.KClass
 
-@OptIn(ExperimentalSerializationApi::class)
+private data class PolymorphicInfo<T : Any>(
+    val klass: KClass<T>,
+    val serialize: (Encoder, Any) -> Unit,
+    val discriminator: String,
+    val makeCopyWithDiscriminator: (Any) -> T
+)
+
+@Suppress("UNCHECKED_CAST")
+private fun <T: Any> info(klass: KClass<T>,
+                          discriminator: String,
+                          makeCopyWithDiscriminator: (T, String) -> T) =
+    PolymorphicInfo(
+        klass,
+        {e : Encoder, v : Any ->
+            klass.serializer().serialize(e, v as T)
+        },
+        discriminator,
+        {v : Any ->
+            makeCopyWithDiscriminator(v as T, discriminator)
+        }
+    )
+
+private val infos = listOf(
+    info(AdCreateRequest::class, "create") { v, d -> v.copy(requestType = d)},
+    info(AdReadRequest::class, "read") { v, d -> v.copy(requestType = d)},
+    info(AdUpdateRequest::class, "update") { v, d -> v.copy(requestType = d)},
+    info(AdDeleteRequest::class, "delete") { v, d -> v.copy(requestType = d)},
+    info(AdSearchRequest::class, "search") { v, d -> v.copy(requestType = d)},
+    info(AdOffersRequest::class, "offers") { v, d -> v.copy(requestType = d)},
+
+    info(AdCreateResponse::class, "create") { v, d -> v.copy(responseType = d)},
+    info(AdReadResponse::class, "read") { v, d -> v.copy(responseType = d)},
+    info(AdUpdateResponse::class, "update") { v, d -> v.copy(responseType = d)},
+    info(AdDeleteResponse::class, "delete") { v, d -> v.copy(responseType = d)},
+    info(AdSearchResponse::class, "search") { v, d -> v.copy(responseType = d)},
+    info(AdOffersResponse::class, "offers") { v, d -> v.copy(responseType = d)},
+    info(AdInitResponse::class, "init")  { v, d -> v.copy(responseType = d)},
+)
+
+private inline fun <reified T: Any> SerializersModuleBuilder.polymorphicSerializer() {
+    polymorphicDefaultSerializer(T::class) { value ->
+        val info = infos.firstOrNull { it.klass == value::class} ?:
+        throw SerializationException(
+            "Unknown class to serialize ${value::class}"
+        )
+        object : SerializationStrategy<T> {
+            override val descriptor: SerialDescriptor
+                get() = info.klass.serializer().descriptor
+
+            override fun serialize(encoder: Encoder, value: T) {
+                val copy = info.makeCopyWithDiscriminator(value)
+                info.serialize(encoder, copy)
+            }
+        }
+    }
+}
+
+private inline fun <reified T: Any> SerializersModuleBuilder.polymorphicDeserializer(discriminatorField: String) {
+    polymorphicDefaultDeserializer(T::class) {
+        object : JsonContentPolymorphicSerializer<T>(T::class) {
+            @Suppress("UNCHECKED_CAST")
+            override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out T> {
+                val discriminatorValue = element.jsonObject[discriminatorField]?.jsonPrimitive?.content
+                val info = infos.firstOrNull { it.discriminator == discriminatorValue} ?:
+                throw SerializationException(
+                    "Unknown class to deserialize: $discriminatorValue"
+                )
+                return info.klass.serializer() as DeserializationStrategy<out T>
+            }
+        }
+    }
+}
+
 val apiV2Mapper = Json {
     classDiscriminator = "_"
     encodeDefaults = true
     ignoreUnknownKeys = true
 
     serializersModule = SerializersModule {
-        polymorphicDefaultSerializer(IRequest::class) {
-            @Suppress("UNCHECKED_CAST")
-            when(it) {
-                is AdCreateRequest ->  RequestSerializer(AdCreateRequest.serializer()) as SerializationStrategy<IRequest>
-                is AdReadRequest   ->  RequestSerializer(AdReadRequest  .serializer()) as SerializationStrategy<IRequest>
-                is AdUpdateRequest ->  RequestSerializer(AdUpdateRequest.serializer()) as SerializationStrategy<IRequest>
-                is AdDeleteRequest ->  RequestSerializer(AdDeleteRequest.serializer()) as SerializationStrategy<IRequest>
-                is AdSearchRequest ->  RequestSerializer(AdSearchRequest.serializer()) as SerializationStrategy<IRequest>
-                is AdOffersRequest ->  RequestSerializer(AdOffersRequest.serializer()) as SerializationStrategy<IRequest>
-                else -> null
-            }
-        }
-        polymorphicDefault(IRequest::class) {
-            AdRequestSerializer
-        }
-        polymorphicDefaultSerializer(IResponse::class) {
-            @Suppress("UNCHECKED_CAST")
-            when(it) {
-                is AdCreateResponse ->  ResponseSerializer(AdCreateResponse.serializer()) as SerializationStrategy<IResponse>
-                is AdReadResponse   ->  ResponseSerializer(AdReadResponse  .serializer()) as SerializationStrategy<IResponse>
-                is AdUpdateResponse ->  ResponseSerializer(AdUpdateResponse.serializer()) as SerializationStrategy<IResponse>
-                is AdDeleteResponse ->  ResponseSerializer(AdDeleteResponse.serializer()) as SerializationStrategy<IResponse>
-                is AdSearchResponse ->  ResponseSerializer(AdSearchResponse.serializer()) as SerializationStrategy<IResponse>
-                is AdOffersResponse ->  ResponseSerializer(AdOffersResponse.serializer()) as SerializationStrategy<IResponse>
-                is AdInitResponse   ->  ResponseSerializer(AdInitResponse  .serializer()) as SerializationStrategy<IResponse>
-                else -> null
-            }
-        }
-        polymorphicDefault(IResponse::class) {
-            AdResponseSerializer
-        }
+        polymorphicSerializer<IRequest>()
+        polymorphicDeserializer<IRequest>("requestType")
 
-        contextual(AdRequestSerializer)
-        contextual(AdResponseSerializer)
+        polymorphicSerializer<IResponse>()
+        polymorphicDeserializer<IResponse>("responseType")
     }
 }
 
-fun Json.encodeResponse(response: IResponse): String = encodeToString(AdResponseSerializer, response)
-
-fun apiV2ResponseSerialize(Response: IResponse): String = apiV2Mapper.encodeToString(AdResponseSerializer, Response)
-
-@Suppress("UNCHECKED_CAST")
-fun <T : Any> apiV2ResponseDeserialize(json: String): T = apiV2Mapper.decodeFromString(AdResponseSerializer, json) as T
-
-fun apiV2RequestSerialize(request: IRequest): String = apiV2Mapper.encodeToString(AdRequestSerializer, request)
-
-@Suppress("UNCHECKED_CAST")
-fun <T : Any> apiV2RequestDeserialize(json: String): T = apiV2Mapper.decodeFromString(AdRequestSerializer, json) as T
