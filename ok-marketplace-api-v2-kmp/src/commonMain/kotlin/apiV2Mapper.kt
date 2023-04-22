@@ -2,12 +2,9 @@
 
 package ru.otus.otuskotlin.marketplace.api.v2
 
-import kotlinx.serialization.DeserializationStrategy
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.InternalSerializationApi
-import kotlinx.serialization.SerializationException
-import kotlinx.serialization.SerializationStrategy
+import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonContentPolymorphicSerializer
@@ -16,7 +13,7 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.SerializersModuleBuilder
-import kotlinx.serialization.serializer
+import kotlinx.serialization.modules.contextual
 import ru.otus.otuskotlin.marketplace.api.v2.models.AdCreateRequest
 import ru.otus.otuskotlin.marketplace.api.v2.models.AdCreateResponse
 import ru.otus.otuskotlin.marketplace.api.v2.models.AdDeleteRequest
@@ -73,13 +70,12 @@ private val infos = listOf(
     info(AdInitResponse::class, "init")  { v, d -> v.copy(responseType = d)},
 )
 
-private inline fun <reified T: Any> SerializersModuleBuilder.polymorphicSerializer() {
+private inline fun <reified T : Any> SerializersModuleBuilder.polymorphicSerializer() {
     polymorphicDefaultSerializer(T::class) { value ->
-        val info = infos.firstOrNull { it.klass == value::class} ?:
-        throw SerializationException(
+        val info = infos.firstOrNull { it.klass == value::class } ?: throw SerializationException(
             "Unknown class to serialize ${value::class}"
         )
-        object : SerializationStrategy<T> {
+        object : KSerializer<T> {
             override val descriptor: SerialDescriptor
                 get() = info.klass.serializer().descriptor
 
@@ -87,25 +83,26 @@ private inline fun <reified T: Any> SerializersModuleBuilder.polymorphicSerializ
                 val copy = info.makeCopyWithDiscriminator(value)
                 info.serialize(encoder, copy)
             }
+
+            override fun deserialize(decoder: Decoder): T = throw NotImplementedError("you should not use this method")
         }
     }
 }
 
-private inline fun <reified T: Any> SerializersModuleBuilder.polymorphicDeserializer(discriminatorField: String) {
-    polymorphicDefaultDeserializer(T::class) {
-        object : JsonContentPolymorphicSerializer<T>(T::class) {
-            @Suppress("UNCHECKED_CAST")
-            override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out T> {
-                val discriminatorValue = element.jsonObject[discriminatorField]?.jsonPrimitive?.content
-                val info = infos.firstOrNull { it.discriminator == discriminatorValue} ?:
-                throw SerializationException(
-                    "Unknown class to deserialize: $discriminatorValue"
-                )
-                return info.klass.serializer() as DeserializationStrategy<out T>
-            }
-        }
+private class PolymorphicSerializer<T : Any>(cls: KClass<T>, val discriminatorField: String) :
+    JsonContentPolymorphicSerializer<T>(cls) {
+    @Suppress("UNCHECKED_CAST")
+    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out T> {
+        val discriminatorValue = element.jsonObject[discriminatorField]?.jsonPrimitive?.content
+        val info = infos.firstOrNull { it.discriminator == discriminatorValue } ?: throw SerializationException(
+            "Unknown class to deserialize: $discriminatorValue"
+        )
+        return info.klass.serializer() as DeserializationStrategy<out T>
     }
 }
+
+private val requestSerializer = PolymorphicSerializer(IRequest::class, "requestType")
+private val responseSerializer = PolymorphicSerializer(IResponse::class, "responseType")
 
 val apiV2Mapper = Json {
     classDiscriminator = "_"
@@ -114,10 +111,13 @@ val apiV2Mapper = Json {
 
     serializersModule = SerializersModule {
         polymorphicSerializer<IRequest>()
-        polymorphicDeserializer<IRequest>("requestType")
+        polymorphicDefaultDeserializer(IRequest::class) { requestSerializer }
 
         polymorphicSerializer<IResponse>()
-        polymorphicDeserializer<IResponse>("responseType")
+        polymorphicDefaultDeserializer(IResponse::class) { responseSerializer }
+
+        contextual(requestSerializer)
+        contextual(responseSerializer)
     }
 }
 
