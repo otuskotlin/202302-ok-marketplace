@@ -41,4 +41,21 @@ class ResponseSerializationTest {
 
         assertEquals(response, obj)
     }
+
+    @Test
+    fun deserializeNaked() {
+        val jsonString = """
+            {
+            "responseType":"create",
+            "requestId":"123",
+            "result":null,
+            "errors":null,
+            "ad":{"title":"ad title","description":"ad description","adType":"demand","visibility":"public","productId":null,"id":null,"ownerId":null,"lock":null,"permissions":null}
+            }
+        """.trimIndent()
+        val obj = apiV2Mapper.decodeFromString(jsonString) as IResponse
+
+        assertEquals("123", obj.requestId)
+        assertEquals(response, obj)
+    }
 }
