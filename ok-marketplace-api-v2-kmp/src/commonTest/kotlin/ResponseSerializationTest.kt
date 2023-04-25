@@ -21,9 +21,9 @@ class ResponseSerializationTest {
 
     @Test
     fun serialize() {
-//        val json = apiV2Mapper.encodeToString(AdRequestSerializer1, request)
-//        val json = apiV2Mapper.encodeToString(RequestSerializers.create, request)
-        val json = apiV2Mapper.encodeToString(response)
+//        val json = apiV2ResponseSerialize(AdRequestSerializer1, request)
+//        val json = apiV2ResponseSerialize(RequestSerializers.create, request)
+        val json = apiV2ResponseSerialize(response)
 
         println(json)
 
@@ -33,11 +33,11 @@ class ResponseSerializationTest {
 
     @Test
     fun deserialize() {
-        val json = apiV2Mapper.encodeToString(response)
-//        val json = apiV2Mapper.encodeToString(AdRequestSerializer1, request)
-//        val json = apiV2Mapper.encodeToString(RequestSerializers.create, request)
+        val json = apiV2ResponseSerialize(response)
+//        val json = apiV2ResponseSerialize(AdRequestSerializer1, request)
+//        val json = apiV2ResponseSerialize(RequestSerializers.create, request)
 //        val obj = apiV2Mapper.decodeFromString(AdRequestSerializer, json) as AdCreateRequest
-        val obj = apiV2Mapper.decodeFromString(json) as AdCreateResponse
+        val obj = apiV2ResponseDeserialize(json) as AdCreateResponse
 
         assertEquals(response, obj)
     }
@@ -53,7 +53,7 @@ class ResponseSerializationTest {
             "ad":{"title":"ad title","description":"ad description","adType":"demand","visibility":"public","productId":null,"id":null,"ownerId":null,"lock":null,"permissions":null}
             }
         """.trimIndent()
-        val obj = apiV2Mapper.decodeFromString(jsonString) as IResponse
+        val obj = apiV2ResponseDeserialize(jsonString) as IResponse
 
         assertEquals("123", obj.requestId)
         assertEquals(response, obj)
