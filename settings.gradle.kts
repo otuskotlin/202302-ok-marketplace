@@ -50,6 +50,7 @@ include("ok-marketplace-mappers-v2")
 
 include("ok-marketplace-biz")
 include("ok-marketplace-stubs")
+include("ok-marketplace-app-rabbit")
 
 include("ok-marketplace-app-spring")
 include("ok-marketplace-app-ktor")
