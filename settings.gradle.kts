@@ -31,3 +31,4 @@ include("ok-marketplace-mappers-v2")
 
 include("ok-marketplace-biz")
 include("ok-marketplace-stubs")
+include("ok-marketplace-app-rabbit")
