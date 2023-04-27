@@ -25,9 +25,9 @@ class RequestSerializationTest {
 
     @Test
     fun serialize() {
-//        val json = apiV2Mapper.encodeToString(AdRequestSerializer1, request)
-//        val json = apiV2Mapper.encodeToString(RequestSerializers.create, request)
-        val json = apiV2Mapper.encodeToString(request)
+//        val json = apiV2RequestSerialize(AdRequestSerializer1, request)
+//        val json = apiV2RequestSerialize(RequestSerializers.create, request)
+        val json = apiV2RequestSerialize(request)
 
         println(json)
 
@@ -39,7 +39,7 @@ class RequestSerializationTest {
 
     @Test
     fun serializeWithoutType() {
-        val json = apiV2Mapper.encodeToString((request as AdCreateRequest).copy(requestType = null) as IRequest)
+        val json = apiV2RequestSerialize((request as AdCreateRequest).copy(requestType = null))
 
         println(json)
 
@@ -51,11 +51,11 @@ class RequestSerializationTest {
 
     @Test
     fun deserialize() {
-        val json = apiV2Mapper.encodeToString(request)
-//        val json = apiV2Mapper.encodeToString(AdRequestSerializer1, request)
-//        val json = apiV2Mapper.encodeToString(RequestSerializers.create, request)
-//        val obj = apiV2Mapper.decodeFromString(AdRequestSerializer, json) as AdCreateRequest
-        val obj = apiV2Mapper.decodeFromString(json) as AdCreateRequest
+        val json = apiV2RequestSerialize(request)
+//        val json = apiV2RequestSerialize(AdRequestSerializer1, request)
+//        val json = apiV2RequestSerialize(RequestSerializers.create, request)
+//        val obj = apiV2RequestDeserialize(AdRequestSerializer, json) as AdCreateRequest
+        val obj = apiV2RequestDeserialize(json) as AdCreateRequest
 
         assertEquals(request, obj)
     }
@@ -69,7 +69,7 @@ class RequestSerializationTest {
             "ad":{"title":"ad title","description":"ad description","adType":"demand","visibility":"public","productId":null}
             }
         """.trimIndent()
-        val obj = apiV2Mapper.decodeFromString(jsonString) as IRequest
+        val obj = apiV2RequestDeserialize(jsonString) as IRequest
 
         assertEquals("123", obj.requestId)
         assertEquals(request, obj)
