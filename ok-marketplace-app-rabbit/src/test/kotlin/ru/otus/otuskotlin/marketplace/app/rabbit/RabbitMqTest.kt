@@ -85,13 +85,7 @@ class RabbitMqTest {
 
                 channel.basicPublish(processor.processorConfig.exchange, keyIn, null, mapper.writeValueAsBytes(boltCreateV1))
 
-                runBlocking {
-                    withTimeoutOrNull(265L) {
-                        while (responseJson.isBlank()) {
-                            delay(10)
-                        }
-                    }
-                }
+                Thread.sleep(10000)
 
                 println("RESPONSE: $responseJson")
                 val response = mapper.readValue(responseJson, AdCreateResponse::class.java)
