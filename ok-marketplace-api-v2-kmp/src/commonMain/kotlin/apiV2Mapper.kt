@@ -26,7 +26,7 @@ internal val infos = listOf(
     info(AdInitResponse::class, IResponse::class, "init") { copy(responseType = it) },
 )
 
-private val apiV2Mapper = Json {
+val apiV2Mapper = Json {
     classDiscriminator = "_"
     encodeDefaults = true
     ignoreUnknownKeys = true
@@ -47,5 +47,3 @@ fun apiV2ResponseSerialize(response: IResponse): String = apiV2Mapper.encodeToSt
 @Suppress("UNCHECKED_CAST")
 fun <T : IResponse> apiV2ResponseDeserialize(json: String): T =
     apiV2Mapper.decodeFromString<IResponse>(json) as T
-
-
