@@ -39,5 +39,6 @@ tasks {
         useJUnitPlatform()
         dependsOn(":ok-marketplace-app-spring:dockerBuildImage")
         dependsOn(":ok-marketplace-app-rabbit:dockerBuildImage")
+        dependsOn(":ok-marketplace-app-ktor:publishImageToLocalRegistry")
     }
 }
