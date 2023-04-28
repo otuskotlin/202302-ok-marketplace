@@ -7,9 +7,15 @@ dependencies {
     val kotestVersion: String by project
     val ktorVersion: String by project
     val coroutinesVersion: String by project
+    val logbackVersion: String by project
 
     implementation(kotlin("stdlib"))
     implementation("io.ktor:ktor-client-okhttp-jvm:2.2.4")
+
+    implementation(project(":ok-marketplace-api-v1-jackson"))
+    implementation(project(":ok-marketplace-api-v2-kmp"))
+
+    implementation("ch.qos.logback:logback-classic:$logbackVersion")
 
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
@@ -28,12 +34,6 @@ var severity: String = "MINOR"
 tasks {
     withType<Test>().configureEach {
         useJUnitPlatform()
-    }
-    test {
-        systemProperty("kotest.framework.test.severity", "NORMAL")
-    }
-    create<Test>("test-strict") {
-        systemProperty("kotest.framework.test.severity", "MINOR")
-        group = "verification"
+        dependsOn(":ok-marketplace-app-spring:dockerBuildImage")
     }
 }
