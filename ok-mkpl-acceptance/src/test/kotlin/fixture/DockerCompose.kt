@@ -21,4 +21,13 @@ interface DockerCompose {
 
     val inputUrl: URLBuilder
 
+    /**
+     * Пользователь для подключения (доступен не везде)
+     */
+    val user: String get() = throw UnsupportedOperationException("no user")
+    /**
+     * Пароль для подключения (доступен не везде)
+     */
+    val password: String get() = throw UnsupportedOperationException("no password")
+
 }

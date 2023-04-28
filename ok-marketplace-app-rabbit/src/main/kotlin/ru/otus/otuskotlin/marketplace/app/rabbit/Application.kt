@@ -13,7 +13,7 @@ import ru.otus.otuskotlin.marketplace.biz.MkplAdProcessor
 fun main() {
 
     val config = RabbitConfig(
-        host = "localhost",
+        host = System.getenv("RABBIT_HOST") ?: "localhost",
         port = 5672,
         user = "rabbitmq",
         password = "rabbitmq"

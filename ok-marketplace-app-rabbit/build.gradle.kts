@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm")
+    id("com.bmuschko.docker-java-application")
 }
 
 dependencies {
@@ -34,4 +35,11 @@ dependencies {
 
     testImplementation("org.testcontainers:rabbitmq:$testContainersVersion")
     testImplementation(kotlin("test"))
+}
+
+docker {
+    javaApplication {
+        baseImage.set("openjdk:17")
+        images.set(setOf("${project.name}:latest"))
+    }
 }

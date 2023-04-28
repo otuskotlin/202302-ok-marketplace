@@ -8,6 +8,7 @@ dependencies {
     val ktorVersion: String by project
     val coroutinesVersion: String by project
     val logbackVersion: String by project
+    val rabbitVersion: String by project
 
     implementation(kotlin("stdlib"))
     implementation("io.ktor:ktor-client-okhttp-jvm:2.2.4")
@@ -22,6 +23,8 @@ dependencies {
     testImplementation("io.kotest:kotest-framework-datatest:$kotestVersion")
     testImplementation("io.kotest:kotest-property:$kotestVersion")
 
+    implementation("com.rabbitmq:amqp-client:$rabbitVersion")
+
     testImplementation("org.testcontainers:testcontainers:$testcontainersVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
 
@@ -35,5 +38,6 @@ tasks {
     withType<Test>().configureEach {
         useJUnitPlatform()
         dependsOn(":ok-marketplace-app-spring:dockerBuildImage")
+        dependsOn(":ok-marketplace-app-rabbit:dockerBuildImage")
     }
 }
