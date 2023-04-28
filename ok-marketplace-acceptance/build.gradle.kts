@@ -10,9 +10,10 @@ dependencies {
     val logbackVersion: String by project
     val kotlinLoggingJvmVersion: String by project
     val ktorClientOkhttpVersion: String by project
+    val rabbitVersion: String by project
 
     implementation(kotlin("stdlib"))
-    implementation("io.ktor:ktor-client-okhttp-jvm:ktorClientOkhttpVersion")
+    implementation("io.ktor:ktor-client-okhttp-jvm:$ktorClientOkhttpVersion")
 
     implementation(project(":ok-marketplace-api-v1-jackson"))
     implementation(project(":ok-marketplace-api-v2-kmp"))
@@ -24,6 +25,8 @@ dependencies {
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.kotest:kotest-framework-datatest:$kotestVersion")
     testImplementation("io.kotest:kotest-property:$kotestVersion")
+
+    implementation("com.rabbitmq:amqp-client:$rabbitVersion")
 
     testImplementation("org.testcontainers:testcontainers:$testcontainersVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
@@ -39,5 +42,6 @@ tasks {
         useJUnitPlatform()
         dependsOn(":ok-marketplace-app-spring:dockerBuildImage")
         dependsOn(":ok-marketplace-app-ktor:publishImageToLocalRegistry")
+        dependsOn(":ok-marketplace-app-rabbit:dockerBuildImage")
     }
 }
