@@ -38,5 +38,6 @@ tasks {
     withType<Test>().configureEach {
         useJUnitPlatform()
         dependsOn(":ok-marketplace-app-spring:dockerBuildImage")
+        dependsOn(":ok-marketplace-app-ktor:publishImageToLocalRegistry")
     }
 }
