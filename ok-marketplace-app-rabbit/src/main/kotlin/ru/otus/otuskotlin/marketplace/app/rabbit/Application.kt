@@ -1,48 +1,60 @@
 package ru.otus.otuskotlin.marketplace.app.rabbit
 
+
+import io.ktor.server.application.*
+import io.ktor.server.engine.*
+import io.ktor.server.netty.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import org.koin.dsl.module
+import org.koin.java.KoinJavaComponent.inject
+import org.koin.ktor.plugin.koin
 import ru.otus.otuskotlin.marketplace.app.rabbit.config.RabbitConfig
-import ru.otus.otuskotlin.marketplace.app.rabbit.config.RabbitExchangeConfiguration
-import ru.otus.otuskotlin.marketplace.app.rabbit.config.rabbitLogger
-import ru.otus.otuskotlin.marketplace.app.rabbit.controller.RabbitController
-import ru.otus.otuskotlin.marketplace.app.rabbit.processor.RabbitDirectProcessor
-import ru.otus.otuskotlin.marketplace.biz.MkplAdProcessor
 
- const val QUEUE_IN_NAME = "v1-queue-in"
- const val QUEUE_OUT_NAME = "v1-queue-out"
-
+const val QUEUE_V1 = "v1-queue"
+ const val QUEUE_V2 = "v2-queue"
+val config = RabbitConfig(
+    host = "localhost",
+    port = 5670,
+    user = "rabbitmq",
+    password = "rabbitmq",
+    keyV1 = "key-v1",
+    keyV2 = "key-v2",
+    exchange = "transport-exchange",
+    queueV1 = QUEUE_V1,
+    queueV2 = QUEUE_V2,
+    consumerTag = "v1-consumer",
+    exchangeType = "direct"
+)
 fun main() {
+    embeddedServer(Netty, port = 8080, host = "localhost") {
+        configureRouting()
+    }.start(wait = true)
+}
 
-    val config = RabbitConfig(
-        host = "localhost",
-        port = 5672,
-        user = "rabbitmq",
-        password = "rabbitmq"
-    )
-    val adProcessor = MkplAdProcessor()
-
-    val producerConfig = RabbitExchangeConfiguration(
-        keyIn = "in-v1",
-        keyOut = "out-v1",
-        exchange = "transport-exchange",
-        queueIn = QUEUE_IN_NAME,
-        queueOut = QUEUE_OUT_NAME,
-        consumerTag = "v1-consumer",
-        exchangeType = "direct"
-    )
-
-    val processor by lazy {
-        RabbitDirectProcessor(
-            config = config,
-            processorConfig = producerConfig,
-            processor = adProcessor
-        )
+fun Application.configureRouting() {
+    koin {
+        modules(koinModule)
     }
-    val controller by lazy {
-        RabbitController(
-            processors = setOf(processor)
-        )
+    routing {
+        val helloService: HelloService by inject(HelloService::class.java)
+        get("/") {
+            call.respondText("Hello World!")
+        }
+        get("/send-queue-v1") {
+            call.respondText { "message sent"+helloService.sayHello() }
+        }
     }
-    rabbitLogger.info("rabbit processor started")
+}
+val koinModule = module {
+    single { HelloService() }
+    single { HelloRepository() }
+}
+class HelloService() {
+    private val helloRepository: HelloRepository by inject(HelloRepository::class.java)
+     fun sayHello() = "Hello ${helloRepository.getHello()} !"
+}
 
-    controller.start()
+class HelloRepository {
+    fun getHello(): String = "Ktor & Koin"
 }
