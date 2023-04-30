@@ -1,5 +1,7 @@
 package ru.otus.otuskotlin.marketplace.api.v2
 
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import ru.otus.otuskotlin.marketplace.api.v2.models.*
@@ -34,3 +36,14 @@ val apiV2Mapper = Json {
     }
 }
 
+fun apiV2RequestSerialize(request: IRequest): String = apiV2Mapper.encodeToString(request)
+
+@Suppress("UNCHECKED_CAST")
+fun <T : IRequest> apiV2RequestDeserialize(json: String): T =
+    apiV2Mapper.decodeFromString<IRequest>(json) as T
+
+fun apiV2ResponseSerialize(response: IResponse): String = apiV2Mapper.encodeToString(response)
+
+@Suppress("UNCHECKED_CAST")
+fun <T : IResponse> apiV2ResponseDeserialize(json: String): T =
+    apiV2Mapper.decodeFromString<IResponse>(json) as T
