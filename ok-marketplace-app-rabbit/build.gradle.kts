@@ -8,7 +8,9 @@ val testContainersVersion: String by project
 val koinVersion: String by project
 plugins {
     kotlin("jvm")
+    id("com.bmuschko.docker-remote-api")
 }
+apply(plugin = "com.bmuschko.docker-remote-api")
 
 dependencies {
     implementation(kotlin("stdlib"))

@@ -3,7 +3,12 @@ rootProject.name = "ok-marketplace-202302"
 pluginManagement {
     val kotlinVersion: String by settings
     val openapiVersion: String by settings
-
+    val springframeworkBootVersion:String by settings
+    val springDependencyManagementVersion:String by settings
+    val pluginSpringVersion:String by settings
+    val pluginJpa:String by settings
+    val ktorVersion:String by settings
+    val bmuschkoVersion:String by settings
     plugins {
         kotlin("jvm") version kotlinVersion apply false
         kotlin("plugin.serialization") version kotlinVersion apply false
@@ -22,15 +27,6 @@ pluginManagement {
         id("com.bmuschko.docker-remote-api") version bmuschkoVersion apply false
     }
 }
-
-//include("m1l1-hello")
-//include("m1l2-basic")
-//include("m1l3-oop")
-//include("m1l4-dsl")
-//include("m1l5-coroutines")
-//include("m1l6-flows-and-channels")
-//include("m1l7-kmp")
-//include("m3l1-spring")
 
 include("ok-mkpl-acceptance")
 include("ok-mkpl-acceptance-rest")

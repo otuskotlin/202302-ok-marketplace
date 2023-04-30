@@ -49,7 +49,6 @@ class RabbitMqTest {
                 setBody(jacksonObjectMapper.writeValueAsString(boltCreateV1))
             }
             assertEquals(HttpStatusCode.Created, response.status)
-            Thread.sleep(5000)
             val httpResponse = testClient1.get("/advertisement") {
                 parameter("request_id", response.bodyAsText())
             }
