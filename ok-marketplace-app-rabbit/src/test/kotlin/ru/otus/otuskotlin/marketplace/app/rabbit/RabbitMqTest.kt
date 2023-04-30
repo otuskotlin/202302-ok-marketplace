@@ -1,108 +1,75 @@
 package ru.otus.otuskotlin.marketplace.app.rabbit
 
-//import com.fasterxml.jackson.databind.ObjectMapper
-//import com.rabbitmq.client.CancelCallback
-//import com.rabbitmq.client.ConnectionFactory
-//import com.rabbitmq.client.DeliverCallback
-//import org.testcontainers.containers.RabbitMQContainer
-//import ru.otus.otuskotlin.marketplace.api.v1.models.*
-//import ru.otus.otuskotlin.marketplace.app.rabbit.config.RabbitConfig
-//import ru.otus.otuskotlin.marketplace.app.rabbit.controller.RabbitController
-//import ru.otus.otuskotlin.marketplace.app.rabbit.processor.RabbitDirectProcessor
-//import ru.otus.otuskotlin.marketplace.stubs.MkplAdStub
-//import kotlin.test.BeforeTest
-//import kotlin.test.Test
-//import kotlin.test.assertEquals
-//
-//class RabbitMqTest {
-//
-//    val container by lazy {
-//        RabbitMQContainer("rabbitmq:latest").apply {
-//            withExposedPorts(5672, 15672)
-//            withUser("rabbitmq", "rabbitmq")
-//            start()
-//        }
-//    }
-//
-//    val config by lazy {
-//        RabbitConfig(
-//            port = container.getMappedPort(5672),
-//            host = container.host,
-//            user = container.adminUsername,
-//            password = container.adminPassword
-//        )
-//    }
-//    val processor by lazy {
-//        RabbitDirectProcessor(
-//            config = config,
-//            processorConfig = RabbitExchangeConfiguration(
-//                keyIn = "in-v1",
-//                keyOut = "out-v1",
-//                exchange = "test-exchange",
-//                queueIn = QUEUE_IN_NAME,
-//                queueOut = QUEUE_OUT_NAME,
-//                consumerTag = "test-tag",
-//                exchangeType = "direct"
-//            )
-//        )
-//    }
-//    val controller by lazy {
-//        RabbitController(
-//            processors = setOf(processor)
-//        )
-//    }
-//    val mapper = ObjectMapper()
-//
-//    @BeforeTest
-//    fun tearUp() {
-//        controller.start()
-//    }
-//
-//    @Test
-//    fun adCreateTest() {
-//        val keyOut = processor.processorConfig.keyOut
-//        val keyIn = processor.processorConfig.keyIn
-//        ConnectionFactory().apply {
-//            host = config.host
-//            port = config.port
-//            username = config.user
-//            password = config.password
-//        }.newConnection().use { connection ->
-//            connection.createChannel().use { channel ->
-//                var responseJson = ""
-//                channel.exchangeDeclare(processor.processorConfig.exchange, "direct")
-//                val queueOut = channel.queueDeclare().queue
-//                channel.queueBind(queueOut, processor.processorConfig.exchange, keyOut)
-//                val deliverCallback = DeliverCallback { consumerTag, delivery ->
-//                    responseJson = String(delivery.body, Charsets.UTF_8)
-//                    println(" [x] Received by $consumerTag: '$responseJson'")
-//                }
-//                channel.basicConsume(queueOut, true, deliverCallback, CancelCallback { })
-//
-//                channel.basicPublish(processor.processorConfig.exchange, keyIn, null, mapper.writeValueAsBytes(boltCreateV1))
-//
-//                Thread.sleep(10000)
-//
-//                println("RESPONSE: $responseJson")
-//                val response = mapper.readValue(responseJson, AdCreateResponse::class.java)
-//                val expected = MkplAdStub.get()
-//
-//                assertEquals(expected.title, response.ad?.title)
-//                assertEquals(expected.description, response.ad?.description)
-//            }
-//        }
-//    }
-//    private val boltCreateV1 = with(MkplAdStub.get()) {
-//        AdCreateRequest(
-//            ad = AdCreateObject(
-//                title = title,
-//                description = description
-//            ),
-//            requestType = "create",
-//            debug = AdDebug(
-//                mode = AdRequestDebugMode.STUB,
-//                stub = AdRequestDebugStubs.SUCCESS
-//            )
-//        )
-//    }
-//}
+
+import com.fasterxml.jackson.databind.ObjectMapper
+import io.ktor.client.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import io.ktor.server.testing.*
+import org.koin.ktor.plugin.koin
+import org.testcontainers.containers.RabbitMQContainer
+import ru.otus.otuskotlin.marketplace.api.v1.models.*
+import ru.otus.otuskotlin.marketplace.app.rabbit.config.RABBIT_PASSWORD
+import ru.otus.otuskotlin.marketplace.app.rabbit.config.RABBIT_USER
+import ru.otus.otuskotlin.marketplace.app.rabbit.config.configureRouting
+import ru.otus.otuskotlin.marketplace.app.rabbit.config.createKoinModule
+import ru.otus.otuskotlin.marketplace.stubs.MkplAdStub
+import kotlin.test.Test
+import kotlin.test.assertEquals
+
+class RabbitMqTest {
+    val jacksonObjectMapper: ObjectMapper = ObjectMapper()
+    val container by lazy {
+        RabbitMQContainer("rabbitmq:latest").apply {
+            withExposedPorts(5672, 15672)
+            withUser(RABBIT_USER, RABBIT_PASSWORD)
+            start()
+        }
+    }
+    lateinit var testClient1:HttpClient
+
+    @Test
+    fun adCreateTest() {
+        testApplication {
+            testClient1=client
+            application {
+                configureRouting()
+                koin {
+                    modules(createKoinModule(
+                        container.host,
+                        container.getMappedPort(5672),
+                        container.adminUsername,
+                        container.adminPassword
+                    ))
+                }
+            }
+
+            val response = testClient1.post("/advertisement") {
+                setBody(jacksonObjectMapper.writeValueAsString(boltCreateV1))
+            }
+            assertEquals(HttpStatusCode.Created, response.status)
+            Thread.sleep(5000)
+            val httpResponse = testClient1.get("/advertisement") {
+                parameter("request_id", response.bodyAsText())
+            }
+            val adCreateResponse = jacksonObjectMapper.readValue(httpResponse.bodyAsText(), AdCreateResponse::class.java)
+            assertEquals(response.bodyAsText(), adCreateResponse.requestId)
+        }
+    }
+}
+
+private val boltCreateV1 = with(MkplAdStub.get()) {
+    AdCreateRequest(
+        ad = AdCreateObject(
+            title = title,
+            description = description
+        ),
+        requestType = "create",
+        debug = AdDebug(
+            mode = AdRequestDebugMode.STUB,
+            stub = AdRequestDebugStubs.SUCCESS
+        )
+    )
+}
+
