@@ -34,7 +34,7 @@ import ru.otus.otuskotlin.marketplace.api.v2.models.AdRequestDebugMode as AdRequ
 import ru.otus.otuskotlin.marketplace.api.v2.models.AdRequestDebugStubs as AdRequestDebugStubsV2
 
 //  TODO-rmq-8: тесты в использованием testcontainers
-internal class RabbitMqTest {
+ class RabbitMqTest {
 
     companion object {
         const val exchangeType = "direct"
@@ -46,17 +46,14 @@ internal class RabbitMqTest {
 //            Этот образ минимальный и не содержит панель управления
         RabbitMQContainer("rabbitmq:latest").apply {
             withExposedPorts(5672, 15672)
-            withUser("guest", "guest")
+            withUser(RABBIT_USER, RABBIT_PASSWORD)
             start()
         }
     }
-
-    val rabbitMqTestPort: Int by lazy {
-        container.getMappedPort(5672)
-    }
     val config by lazy {
         RabbitConfig(
-            port = rabbitMqTestPort
+            port = container.getMappedPort(5672),
+            host = container.host
         )
     }
     val processorV1 by lazy {
@@ -98,7 +95,7 @@ internal class RabbitMqTest {
         GlobalScope.launch {
             controller.start()
         }
-        Thread.sleep(3000)
+        Thread.sleep(6000)
         // await when controller starts producers
         println("controller initiated")
     }
