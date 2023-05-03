@@ -37,7 +37,9 @@ import ru.otus.otuskotlin.marketplace.api.v2.models.AdRequestDebugStubs as AdReq
  class RabbitMqTest {
 
     companion object {
-        const val exchangeType = "direct"
+        const val EXCHANGE_TYPE = "direct"
+        const val TRANSPORT_EXCHANGE_V1 = "transport-exchange-v1"
+        const val TRANSPORT_EXCHANGE_V2 = "transport-exchange-v2"
     }
 
     val container by lazy {
@@ -56,32 +58,40 @@ import ru.otus.otuskotlin.marketplace.api.v2.models.AdRequestDebugStubs as AdReq
             host = container.host
         )
     }
+    val processorConfigV1 = RabbitExchangeConfiguration(
+        keyIn = "in-v1",
+        keyOut = "out-v1",
+        exchange = TRANSPORT_EXCHANGE_V1,
+        queueIn = "v1-queue",
+        queueOut = "v1-queue-out",
+        consumerTag = "v1-consumer",
+        exchangeType = EXCHANGE_TYPE
+    )
     val processorV1 by lazy {
+
+
+
         RabbitDirectProcessorV1(
             config = config,
-            processorConfig = RabbitExchangeConfiguration(
-                keyIn = "in-v1",
-                keyOut = "out-v1",
-                exchange = "transport-exchange-v1",
-                queueIn = "v1-queue",
-                queueOut = "v1-queue-out",
-                consumerTag = "v1-consumer",
-                exchangeType = exchangeType
-            )
+            processorConfig = processorConfigV1
         )
     }
+    val processorConfigV2 = RabbitExchangeConfiguration(
+        keyIn = "in-v2",
+        keyOut = "out-v2",
+        exchange = TRANSPORT_EXCHANGE_V2,
+        queueIn = "v2-queue",
+        queueOut = "v2-queue-out",
+        consumerTag = "v2-consumer",
+        exchangeType = EXCHANGE_TYPE
+    )
+
     val processorV2 by lazy {
+
+
         RabbitDirectProcessorV2(
             config = config,
-            processorConfig = RabbitExchangeConfiguration(
-                keyIn = "in-v2",
-                keyOut = "out-v2",
-                exchange = "transport-exchange-v2",
-                queueIn = "v2-queue",
-                queueOut = "v2-queue-out",
-                consumerTag = "v2-consumer",
-                exchangeType = exchangeType
-            )
+            processorConfig = processorConfigV2
         )
     }
     val controller by lazy {
@@ -95,7 +105,7 @@ import ru.otus.otuskotlin.marketplace.api.v2.models.AdRequestDebugStubs as AdReq
         GlobalScope.launch {
             controller.start()
         }
-        Thread.sleep(12000)
+        Thread.sleep(6000)
         // await when controller starts producers
         println("controller initiated")
     }
@@ -109,11 +119,14 @@ import ru.otus.otuskotlin.marketplace.api.v2.models.AdRequestDebugStubs as AdReq
         val connection1 = ConnectionFactory().apply {
             host = config.host
             port = config.port
-            username = RABBIT_USER
-            password = RABBIT_PASSWORD
+            username = config.user
+            password = config.password
         }.newConnection()
         connection1.createChannel().use { channel ->
                 var responseJson = ""
+                channel.exchangeDeclare(processorConfig.exchange, EXCHANGE_TYPE)
+                val queueOut = channel.queueDeclare().queue
+                channel.queueBind(queueOut, processorConfig.exchange, processorConfig.keyOut)
                 val deliverCallback = DeliverCallback { consumerTag, delivery ->
                     responseJson = String(delivery.body, Charsets.UTF_8)
                     println(" [x] Received by $consumerTag: '$responseJson'")
@@ -141,11 +154,14 @@ import ru.otus.otuskotlin.marketplace.api.v2.models.AdRequestDebugStubs as AdReq
         ConnectionFactory().apply {
             host = config.host
             port = config.port
-            username = RABBIT_USER
-            password = RABBIT_PASSWORD
+            username = config.user
+            password = config.password
         }.newConnection().use { connection ->
             connection.createChannel().use { channel ->
                 var responseJson = ""
+                channel.exchangeDeclare(processorConfig.exchange, EXCHANGE_TYPE)
+                val queueOut = channel.queueDeclare().queue
+                channel.queueBind(queueOut, processorConfig.exchange, processorConfig.keyOut)
                 val deliverCallback = DeliverCallback { consumerTag, delivery ->
                     responseJson = String(delivery.body, Charsets.UTF_8)
                     println(" [x] Received by $consumerTag: '$responseJson'")
