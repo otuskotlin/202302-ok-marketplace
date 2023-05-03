@@ -128,7 +128,7 @@ import ru.otus.otuskotlin.marketplace.api.v2.models.AdRequestDebugStubs as AdReq
                     responseJson = String(delivery.body, Charsets.UTF_8)
                     println(" [x] Received by $consumerTag: '$responseJson'")
                 }
-                channel.basicConsume(processorConfig.queueOut, true, deliverCallback, CancelCallback { })
+                channel.basicConsume(queueOut, true, deliverCallback, CancelCallback { })
 
                 channel.basicPublish(processorConfig.exchange, keyIn, null, apiV1Mapper.writeValueAsBytes(boltCreateV1))
 
