@@ -95,13 +95,14 @@ import ru.otus.otuskotlin.marketplace.api.v2.models.AdRequestDebugStubs as AdReq
         GlobalScope.launch {
             controller.start()
         }
-        Thread.sleep(6000)
+        Thread.sleep(12000)
         // await when controller starts producers
         println("controller initiated")
     }
 
     @Test
     fun adCreateTestV1() {
+        println("start test v1")
         val processorConfig = processorV1.processorConfig
         val keyIn = processorConfig.keyIn
 
@@ -134,6 +135,7 @@ import ru.otus.otuskotlin.marketplace.api.v2.models.AdRequestDebugStubs as AdReq
 
     @Test
     fun adCreateTestV2() {
+        println("start test v2")
         val processorConfig = processorV2.processorConfig
         val keyIn = processorConfig.keyIn
         ConnectionFactory().apply {
