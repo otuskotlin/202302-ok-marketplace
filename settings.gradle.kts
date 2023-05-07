@@ -53,3 +53,4 @@ include("ok-marketplace-stubs")
 
 include("ok-marketplace-app-spring")
 include("ok-marketplace-app-ktor")
+include("ok-marketplace-app-serverless")
