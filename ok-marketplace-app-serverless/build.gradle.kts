@@ -2,13 +2,9 @@ val jacksonVersion: String by project
 val serializationVersion: String by project
 val yandexCloudSdkVersion: String by project
 
-object PluginVersions {
-    val johnrengelmanShadowVersion: String by project
-}
-
 plugins {
     kotlin("jvm")
-    id("com.github.johnrengelman.shadow") version PluginVersions.johnrengelmanShadowVersion
+    id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
 dependencies {
