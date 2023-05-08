@@ -1,20 +1,25 @@
+val jacksonVersion: String by project
+val serializationVersion: String by project
+val yandexCloudSdkVersion: String by project
+
+object PluginVersions {
+    val johnrengelmanShadowVersion: String by project
+}
 
 plugins {
     kotlin("jvm")
-    id("com.github.johnrengelman.shadow") version "7.1.2"
+    id("com.github.johnrengelman.shadow") version PluginVersions.johnrengelmanShadowVersion
 }
 
 dependencies {
-    implementation("com.yandex.cloud:java-sdk-functions:2.5.1")
+    implementation("com.yandex.cloud:java-sdk-functions:$yandexCloudSdkVersion")
     implementation(kotlin("stdlib-jdk8"))
 
-    val jacksonVersion: String by project
     implementation("com.fasterxml.jackson.core:jackson-core:$jacksonVersion")
     implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
     implementation("com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
 
-    val serializationVersion: String by project
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
 
