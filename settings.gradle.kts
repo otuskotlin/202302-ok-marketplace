@@ -9,6 +9,7 @@ pluginManagement {
     val pluginJpa: String by settings
     val ktorVersion: String by settings
     val bmuschkoVersion: String by settings
+    val pluginShadow: String by settings
 
     plugins {
         kotlin("jvm") version kotlinVersion apply false
@@ -26,6 +27,8 @@ pluginManagement {
         id("com.bmuschko.docker-java-application") version bmuschkoVersion apply false
         id("com.bmuschko.docker-spring-boot-application") version bmuschkoVersion apply false
         id("com.bmuschko.docker-remote-api") version bmuschkoVersion apply false
+
+        id("com.github.johnrengelman.shadow") version pluginShadow apply false
     }
 }
 
