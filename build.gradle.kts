@@ -5,15 +5,15 @@ plugins {
 }
 
 allprojects {
+    group = "ru.otus.otuskotlin.marketplace"
+    version = "1.0-SNAPSHOT"
+
     repositories {
         mavenCentral()
     }
 }
 
 subprojects {
-    group = "ru.otus"
-    version = "1.0-SNAPSHOT"
-
     tasks.withType<KotlinJvmCompile> {
         kotlinOptions.jvmTarget = "17"
     }
