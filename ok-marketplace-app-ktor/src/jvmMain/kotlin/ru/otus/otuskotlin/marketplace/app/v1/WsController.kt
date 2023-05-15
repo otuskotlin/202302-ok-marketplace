@@ -6,19 +6,26 @@ import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import ru.otus.otuskotlin.marketplace.api.v1.apiV1Mapper
 import ru.otus.otuskotlin.marketplace.api.v1.models.IRequest
 import ru.otus.otuskotlin.marketplace.common.MkplContext
 import ru.otus.otuskotlin.marketplace.common.helpers.addError
 import ru.otus.otuskotlin.marketplace.common.helpers.asMkplError
 import ru.otus.otuskotlin.marketplace.common.helpers.isUpdatableCommand
-import ru.otus.otuskotlin.marketplace.mappers.v1.*
+import ru.otus.otuskotlin.marketplace.mappers.v1.fromTransport
+import ru.otus.otuskotlin.marketplace.mappers.v1.toTransportAd
+import ru.otus.otuskotlin.marketplace.mappers.v1.toTransportInit
 import ru.otus.otuskotlin.marketplace.stubs.MkplAdStub
 
-val sessions = mutableSetOf<WebSocketSession>()
+private val mutex = Mutex()
+private val sessions = mutableSetOf<WebSocketSession>()
 
 suspend fun WebSocketSession.wsHandlerV1() {
-    sessions.add(this)
+    mutex.withLock {
+        sessions.add(this)
+    }
 
     // Handle init request
     val ctx = MkplContext()
@@ -42,14 +49,18 @@ suspend fun WebSocketSession.wsHandlerV1() {
 
             // If change request, response is sent to everyone
             if (context.isUpdatableCommand()) {
-                sessions.forEach {
-                    it.send(Frame.Text(result))
+                mutex.withLock {
+                    sessions.forEach {
+                        it.send(Frame.Text(result))
+                    }
                 }
             } else {
                 outgoing.send(Frame.Text(result))
             }
         } catch (_: ClosedReceiveChannelException) {
-            sessions.clear()
+            mutex.withLock {
+                sessions.clear()
+            }
         } catch (t: Throwable) {
             context.addError(t.asMkplError())
 
