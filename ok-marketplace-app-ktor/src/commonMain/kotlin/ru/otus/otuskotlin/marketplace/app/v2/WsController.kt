@@ -5,6 +5,8 @@ import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.decodeFromString
 import ru.otus.otuskotlin.marketplace.api.v2.apiV2Mapper
 import ru.otus.otuskotlin.marketplace.api.v2.apiV2ResponseSerialize
@@ -18,10 +20,13 @@ import ru.otus.otuskotlin.marketplace.mappers.v2.toTransportAd
 import ru.otus.otuskotlin.marketplace.mappers.v2.toTransportInit
 import ru.otus.otuskotlin.marketplace.stubs.MkplAdStub
 
-val sessions = mutableSetOf<WebSocketSession>()
+private val mutex = Mutex()
+private val sessions = mutableSetOf<WebSocketSession>()
 
 suspend fun WebSocketSession.wsHandlerV2() {
-    sessions.add(this)
+    mutex.withLock {
+        sessions.add(this)
+    }
 
     // Handle init request
     val ctx = MkplContext()
@@ -45,14 +50,18 @@ suspend fun WebSocketSession.wsHandlerV2() {
 
             // If change request, response is sent to everyone
             if (context.isUpdatableCommand()) {
-                sessions.forEach {
-                    it.send(Frame.Text(result))
+                mutex.withLock {
+                    sessions.forEach {
+                        it.send(Frame.Text(result))
+                    }
                 }
             } else {
                 outgoing.send(Frame.Text(result))
             }
         } catch (_: ClosedReceiveChannelException) {
-            sessions.clear()
+            mutex.withLock {
+                sessions.clear()
+            }
         } catch (t: Throwable) {
             context.addError(t.asMkplError())
 
