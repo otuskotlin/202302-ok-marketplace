@@ -6,15 +6,16 @@ import kotlinx.datetime.Clock
 import ru.otus.otuskotlin.marketplace.api.v1.apiV1Mapper
 import ru.otus.otuskotlin.marketplace.api.v1.models.IRequest
 import ru.otus.otuskotlin.marketplace.app.rabbit.RabbitProcessorBase
-import ru.otus.otuskotlin.marketplace.app.rabbit.biz.MkplAdProcessor
 import ru.otus.otuskotlin.marketplace.app.rabbit.config.RabbitConfig
 import ru.otus.otuskotlin.marketplace.app.rabbit.config.RabbitExchangeConfiguration
+import ru.otus.otuskotlin.marketplace.biz.MkplAdProcessor
 import ru.otus.otuskotlin.marketplace.common.MkplContext
 import ru.otus.otuskotlin.marketplace.common.helpers.addError
 import ru.otus.otuskotlin.marketplace.common.helpers.asMkplError
 import ru.otus.otuskotlin.marketplace.common.models.MkplState
 import ru.otus.otuskotlin.marketplace.mappers.v1.fromTransport
 import ru.otus.otuskotlin.marketplace.mappers.v1.toTransportAd
+
 // TODO-rmq-6: наследник RabbitProcessorBase, увязывает транспортную и бизнес-части
 class RabbitDirectProcessorV1(
     config: RabbitConfig,

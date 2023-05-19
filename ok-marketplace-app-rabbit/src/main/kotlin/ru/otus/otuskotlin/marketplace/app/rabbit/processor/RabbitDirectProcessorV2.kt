@@ -7,10 +7,10 @@ import ru.otus.otuskotlin.marketplace.api.v2.apiV2RequestDeserialize
 import ru.otus.otuskotlin.marketplace.api.v2.apiV2ResponseSerialize
 import ru.otus.otuskotlin.marketplace.api.v2.models.IRequest
 import ru.otus.otuskotlin.marketplace.app.rabbit.RabbitProcessorBase
-import ru.otus.otuskotlin.marketplace.app.rabbit.biz.MkplAdProcessor
 import ru.otus.otuskotlin.marketplace.app.rabbit.config.RabbitConfig
 import ru.otus.otuskotlin.marketplace.app.rabbit.config.RabbitExchangeConfiguration
 import ru.otus.otuskotlin.marketplace.app.rabbit.config.rabbitLogger
+import ru.otus.otuskotlin.marketplace.biz.MkplAdProcessor
 import ru.otus.otuskotlin.marketplace.common.MkplContext
 import ru.otus.otuskotlin.marketplace.common.helpers.addError
 import ru.otus.otuskotlin.marketplace.common.helpers.asMkplError

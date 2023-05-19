@@ -1,5 +1,3 @@
-import com.bmuschko.gradle.docker.tasks.image.Dockerfile
-
 plugins {
     kotlin("jvm")
     java
@@ -30,11 +28,11 @@ dependencies {
     implementation(project(":ok-marketplace-mappers-v2"))
     implementation(project(":ok-marketplace-api-v2-kmp"))
 
-    // Stubs
-    implementation(project(":ok-marketplace-stubs"))
+    implementation(project(":ok-marketplace-biz"))
 
     testImplementation("org.testcontainers:rabbitmq:$testContainersVersion")
     testImplementation(kotlin("test"))
+    testImplementation(project(":ok-marketplace-stubs"))
 }
 
 

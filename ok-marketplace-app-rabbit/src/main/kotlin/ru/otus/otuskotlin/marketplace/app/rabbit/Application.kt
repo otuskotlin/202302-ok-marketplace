@@ -1,11 +1,11 @@
 package ru.otus.otuskotlin.marketplace.app.rabbit
 
-import ru.otus.otuskotlin.marketplace.app.rabbit.biz.MkplAdProcessor
 import ru.otus.otuskotlin.marketplace.app.rabbit.config.RabbitConfig
 import ru.otus.otuskotlin.marketplace.app.rabbit.config.RabbitExchangeConfiguration
 import ru.otus.otuskotlin.marketplace.app.rabbit.controller.RabbitController
 import ru.otus.otuskotlin.marketplace.app.rabbit.processor.RabbitDirectProcessorV1
 import ru.otus.otuskotlin.marketplace.app.rabbit.processor.RabbitDirectProcessorV2
+import ru.otus.otuskotlin.marketplace.biz.MkplAdProcessor
 
 
 fun main() {
