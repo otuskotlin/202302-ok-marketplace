@@ -10,13 +10,13 @@ echo "=========================="
 echo "remove old image"
 echo "----------------"
 
-docker container rm rabbitmq
+docker container rm rabbitmq-otus
 
 echo "=========================="
 echo "Creating container"
 echo "----------------"
 
-docker run --name rabbitmq  \
+docker run --name rabbitmq-otus  \
              -e RABBITMQ_DEFAULT_USER=guest     \
              -e RABBITMQ_DEFAULT_PASS=guest    \
              -e RABBITMQ_DEFAULT_VHOST='/' -p 5672:5672 -p 15672:15672\
