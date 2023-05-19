@@ -12,7 +12,10 @@ dependencies {
     val ktorClientOkhttpVersion: String by project
 
     implementation(kotlin("stdlib"))
-    implementation("io.ktor:ktor-client-okhttp-jvm:$ktorClientOkhttpVersion")
+    implementation("io.ktor:ktor-client-okhttp-jvm:ktorClientOkhttpVersion")
+
+    implementation(project(":ok-marketplace-api-v1-jackson"))
+    implementation(project(":ok-marketplace-api-v2-kmp"))
 
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("io.github.microutils:kotlin-logging-jvm:$kotlinLoggingJvmVersion")
@@ -29,15 +32,11 @@ dependencies {
     testImplementation("io.ktor:ktor-client-okhttp:$ktorVersion")
 }
 
+var severity: String = "MINOR"
+
 tasks {
     withType<Test>().configureEach {
         useJUnitPlatform()
-    }
-    test {
-        systemProperty("kotest.framework.test.severity", "NORMAL")
-    }
-    create<Test>("test-strict") {
-        systemProperty("kotest.framework.test.severity", "MINOR")
-        group = "verification"
+        dependsOn(":ok-marketplace-app-spring:dockerBuildImage")
     }
 }
