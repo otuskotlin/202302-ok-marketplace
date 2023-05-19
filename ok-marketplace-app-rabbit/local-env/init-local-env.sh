@@ -4,7 +4,7 @@ echo "=========================="
 echo "stopping container"
 echo "----------------"
 
-docker container stop rabbitmq
+docker container stop rabbitmq-otus
 
 echo "=========================="
 echo "remove old image"
