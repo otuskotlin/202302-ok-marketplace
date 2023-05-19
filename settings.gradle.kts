@@ -41,6 +41,8 @@ pluginManagement {
 //include("m1l7-kmp")
 //include("m3l1-spring")
 
+include("ok-marketplace-acceptance")
+
 include("ok-marketplace-api-v1-jackson")
 include("ok-marketplace-api-v2-kmp")
 
