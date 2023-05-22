@@ -38,10 +38,7 @@ class AppKafkaConsumer(
     private val process = atomic(true) // пояснить
     private val topicsAndStrategyByInputTopic = consumerStrategies.associate {
         val topics = it.topics(config)
-        Pair(
-            topics.input,
-            TopicsAndStrategy(topics.input, topics.output, it)
-        )
+        topics.input to TopicsAndStrategy(topics.input, topics.output, it)
     }
 
     fun run() = runBlocking {

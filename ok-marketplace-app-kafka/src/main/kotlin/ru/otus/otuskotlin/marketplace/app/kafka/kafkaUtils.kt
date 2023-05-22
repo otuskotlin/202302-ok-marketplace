@@ -20,7 +20,7 @@ fun AppKafkaConfig.createKafkaConsumer() : KafkaConsumer<String, String> {
 
 fun AppKafkaConfig.createKafkaProducer(): KafkaProducer<String, String> {
     val props = Properties().apply {
-        put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaHosts)
+        put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaHosts)
         put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java)
         put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java)
     }
