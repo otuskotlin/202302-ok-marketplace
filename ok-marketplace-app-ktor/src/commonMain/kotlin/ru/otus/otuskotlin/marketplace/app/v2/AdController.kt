@@ -7,11 +7,12 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import ru.otus.otuskotlin.marketplace.api.v2.apiV2Mapper
 import ru.otus.otuskotlin.marketplace.api.v2.models.*
-import ru.otus.otuskotlin.marketplace.biz.MkplAdProcessor
+import ru.otus.otuskotlin.marketplace.app.MkplAppSettings
 import ru.otus.otuskotlin.marketplace.common.MkplContext
 import ru.otus.otuskotlin.marketplace.mappers.v2.*
 
-suspend fun ApplicationCall.createAd(processor: MkplAdProcessor) {
+suspend fun ApplicationCall.createAd(appSettings: MkplAppSettings) {
+    val processor = appSettings.processor
     val request = apiV2Mapper.decodeFromString<AdCreateRequest>(receiveText())
     val context = MkplContext()
     context.fromTransport(request)
@@ -19,7 +20,8 @@ suspend fun ApplicationCall.createAd(processor: MkplAdProcessor) {
     respond(apiV2Mapper.encodeToString(context.toTransportCreate()))
 }
 
-suspend fun ApplicationCall.readAd(processor: MkplAdProcessor) {
+suspend fun ApplicationCall.readAd(appSettings: MkplAppSettings) {
+    val processor = appSettings.processor
     val request = apiV2Mapper.decodeFromString<AdReadRequest>(receiveText())
     val context = MkplContext()
     context.fromTransport(request)
@@ -27,7 +29,8 @@ suspend fun ApplicationCall.readAd(processor: MkplAdProcessor) {
     respond(apiV2Mapper.encodeToString(context.toTransportRead()))
 }
 
-suspend fun ApplicationCall.updateAd(processor: MkplAdProcessor) {
+suspend fun ApplicationCall.updateAd(appSettings: MkplAppSettings) {
+    val processor = appSettings.processor
     val request = apiV2Mapper.decodeFromString<AdUpdateRequest>(receiveText())
     val context = MkplContext()
     context.fromTransport(request)
@@ -35,7 +38,8 @@ suspend fun ApplicationCall.updateAd(processor: MkplAdProcessor) {
     respond(apiV2Mapper.encodeToString(context.toTransportUpdate()))
 }
 
-suspend fun ApplicationCall.deleteAd(processor: MkplAdProcessor) {
+suspend fun ApplicationCall.deleteAd(appSettings: MkplAppSettings) {
+    val processor = appSettings.processor
     val request = apiV2Mapper.decodeFromString<AdDeleteRequest>(receiveText())
     val context = MkplContext()
     context.fromTransport(request)
@@ -43,7 +47,8 @@ suspend fun ApplicationCall.deleteAd(processor: MkplAdProcessor) {
     respond(apiV2Mapper.encodeToString(context.toTransportDelete()))
 }
 
-suspend fun ApplicationCall.searchAd(processor: MkplAdProcessor) {
+suspend fun ApplicationCall.searchAd(appSettings: MkplAppSettings) {
+    val processor = appSettings.processor
     val request = apiV2Mapper.decodeFromString<AdSearchRequest>(receiveText())
     val context = MkplContext()
     context.fromTransport(request)

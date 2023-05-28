@@ -81,6 +81,10 @@ kotlin {
                 // Stubs
                 implementation(project(":ok-marketplace-stubs"))
 
+                implementation(project(":ok-marketplace-lib-logging-kermit"))
+                implementation(project(":ok-marketplace-api-log1"))
+                implementation(project(":ok-marketplace-mappers-log1"))
+
                 implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
@@ -128,6 +132,11 @@ kotlin {
                 // transport models
                 implementation(project(":ok-marketplace-api-v1-jackson"))
                 implementation(project(":ok-marketplace-mappers-v1"))
+                implementation(project(":ok-marketplace-lib-logging-logback"))
+
+                // Это для логирования
+                implementation("com.sndyuk:logback-more-appenders:1.8.8")
+                implementation("org.fluentd:fluent-logger:0.3.4")
             }
         }
 
