@@ -16,19 +16,22 @@ import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import org.slf4j.event.Level
 import ru.otus.otuskotlin.marketplace.api.v1.apiV1Mapper
+import ru.otus.otuskotlin.marketplace.app.plugins.initAppSettings
 import ru.otus.otuskotlin.marketplace.app.v1.v1Ad
 import ru.otus.otuskotlin.marketplace.app.v1.v1Offer
 import ru.otus.otuskotlin.marketplace.app.v1.wsHandlerV1
 import ru.otus.otuskotlin.marketplace.app.v2.wsHandlerV2
-import ru.otus.otuskotlin.marketplace.biz.MkplAdProcessor
+import ru.otus.otuskotlin.marketplace.logging.jvm.MpLogWrapperLogback
 import java.time.Duration
 import ru.otus.otuskotlin.marketplace.app.module as commonModule
 
 // function with config (application.conf)
 fun main(args: Array<String>): Unit = io.ktor.server.cio.EngineMain.main(args)
 
+private val clazz = Application::moduleJvm::class.qualifiedName ?: "Application"
+
 @Suppress("unused") // Referenced in application.conf
-fun Application.moduleJvm() {
+fun Application.moduleJvm(appSettings: MkplAppSettings = initAppSettings()) {
     install(WebSockets) {
         pingPeriod = Duration.ofSeconds(15)
         timeout = Duration.ofSeconds(15)
@@ -36,8 +39,7 @@ fun Application.moduleJvm() {
         masking = false
     }
 
-    val processor = MkplAdProcessor()
-    commonModule(processor, false)
+    commonModule(appSettings, false)
 
     install(CachingHeaders)
     install(DefaultHeaders)
@@ -56,6 +58,11 @@ fun Application.moduleJvm() {
 
     install(CallLogging) {
         level = Level.INFO
+        val lgr = appSettings
+            .corSettings
+            .loggerProvider
+            .logger(clazz) as? MpLogWrapperLogback
+        lgr?.logger?.also { logger = it }
     }
 
     @Suppress("OPT_IN_USAGE")
@@ -74,8 +81,8 @@ fun Application.moduleJvm() {
                 }
             }
 
-            v1Ad(processor)
-            v1Offer(processor)
+            v1Ad(appSettings)
+            v1Offer(appSettings)
         }
 
         webSocket("/ws/v1") {
