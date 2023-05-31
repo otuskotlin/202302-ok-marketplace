@@ -41,7 +41,7 @@ pluginManagement {
 //include("m1l7-kmp")
 //include("m3l1-spring")
 
-//include("ok-marketplace-acceptance")
+include("ok-marketplace-acceptance")
 
 include("ok-marketplace-lib-logging-common")
 include("ok-marketplace-lib-logging-kermit")
