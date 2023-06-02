@@ -3,6 +3,7 @@ package ru.otus.otuskotlin.marketplace.common.models
 data class MkplAd(
     var id: MkplAdId = MkplAdId.NONE,
     var title: String = "",
+    var lock: MkplAdLock = MkplAdLock.NONE,
     var description: String = "",
     var ownerId: MkplUserId = MkplUserId.NONE,
     val adType: MkplDealSide = MkplDealSide.NONE,
