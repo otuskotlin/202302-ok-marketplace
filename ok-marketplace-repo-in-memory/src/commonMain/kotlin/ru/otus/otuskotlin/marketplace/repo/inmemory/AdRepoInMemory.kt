@@ -4,7 +4,7 @@ import com.benasher44.uuid.uuid4
 import io.github.reactivecircus.cache4k.Cache
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import ru.otus.otuskotlin.marketplace.backend.repository.inmemory.model.AdEntity
+import ru.otus.otuskotlin.marketplace.repo.inmemory.model.AdEntity
 import ru.otus.otuskotlin.marketplace.common.helpers.errorRepoConcurrency
 import ru.otus.otuskotlin.marketplace.common.models.*
 import ru.otus.otuskotlin.marketplace.common.repo.*

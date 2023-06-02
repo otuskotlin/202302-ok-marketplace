@@ -1,4 +1,4 @@
-package ru.otus.otuskotlin.marketplace.backend.repository.inmemory.model
+package ru.otus.otuskotlin.marketplace.repo.inmemory.model
 
 import ru.otus.otuskotlin.marketplace.common.models.*
 
