@@ -4,8 +4,12 @@ import kotlinx.datetime.Clock
 import ru.otus.otuskotlin.marketplace.api.logs.mapper.toLog
 import ru.otus.otuskotlin.marketplace.biz.groups.operation
 import ru.otus.otuskotlin.marketplace.biz.groups.stubs
+import ru.otus.otuskotlin.marketplace.biz.validation.*
 import ru.otus.otuskotlin.marketplace.biz.workers.*
 import ru.otus.otuskotlin.marketplace.common.MkplContext
+import ru.otus.otuskotlin.marketplace.common.helpers.asMkplError
+import ru.otus.otuskotlin.marketplace.common.helpers.fail
+import ru.otus.otuskotlin.marketplace.common.models.MkplAdId
 import ru.otus.otuskotlin.marketplace.common.models.MkplCommand
 import ru.otus.otuskotlin.marketplace.cor.rootChain
 import ru.otus.otuskotlin.marketplace.cor.worker
@@ -26,20 +30,31 @@ class MkplAdProcessor() {
         )
         var realCommand = command
 
-        return logger.doWithLogging(id = logId) {
-            fromTransport(ctx)
-            realCommand = ctx.command
+        return try {
+            logger.doWithLogging(id = logId) {
+                fromTransport(ctx)
+                realCommand = ctx.command
 
-            logger.info(
-                msg = "$realCommand request is got",
-                data = ctx.toLog("${logId}-got")
-            )
-            exec(ctx)
-            logger.info(
-                msg = "$realCommand request is handled",
-                data = ctx.toLog("${logId}-handled")
-            )
-            sendResponse(ctx)
+                logger.info(
+                    msg = "$realCommand request is got",
+                    data = ctx.toLog("${logId}-got")
+                )
+                exec(ctx)
+                logger.info(
+                    msg = "$realCommand request is handled",
+                    data = ctx.toLog("${logId}-handled")
+                )
+                sendResponse(ctx)
+            }
+        } catch (e: Throwable) {
+            logger.doWithLogging(id = "${logId}-failure") {
+                logger.error(msg = "$realCommand handling failed")
+
+                ctx.command = realCommand
+                ctx.fail(e.asMkplError())
+                exec(ctx)
+                sendResponse(ctx)
+            }
         }
     }
 
@@ -55,6 +70,18 @@ class MkplAdProcessor() {
                     stubDbError("Имитация ошибки работы с БД")
                     stubNoCase("Ошибка: запрошенный стаб недопустим")
                 }
+                validation {
+                    worker("Копируем поля в adValidating") { adValidating = adRequest.deepCopy() }
+                    worker("Очистка id") { adValidating.id = MkplAdId.NONE }
+                    worker("Очистка заголовка") { adValidating.title = adValidating.title.trim() }
+                    worker("Очистка описания") { adValidating.description = adValidating.description.trim() }
+                    validateTitleNotEmpty("Проверка, что заголовок не пуст")
+                    validateTitleHasContent("Проверка символов")
+                    validateDescriptionNotEmpty("Проверка, что описание не пусто")
+                    validateDescriptionHasContent("Проверка символов")
+
+                    finishAdValidation("Завершение проверок")
+                }
             }
             operation("Получить объявление", MkplCommand.READ) {
                 stubs("Обработка стабов") {
@@ -62,6 +89,14 @@ class MkplAdProcessor() {
                     stubValidationBadId("Имитация ошибки валидации id")
                     stubDbError("Имитация ошибки работы с БД")
                     stubNoCase("Ошибка: запрошенный стаб недопустим")
+                }
+                validation {
+                    worker("Копируем поля в adValidating") { adValidating = adRequest.deepCopy() }
+                    worker("Очистка id") { adValidating.id = MkplAdId(adValidating.id.asString().trim()) }
+                    validateIdNotEmpty("Проверка на непустой id")
+                    validateIdProperFormat("Проверка формата id")
+
+                    finishAdValidation("Успешное завершение процедуры валидации")
                 }
             }
             operation("Изменить объявление", MkplCommand.UPDATE) {
@@ -73,6 +108,20 @@ class MkplAdProcessor() {
                     stubDbError("Имитация ошибки работы с БД")
                     stubNoCase("Ошибка: запрошенный стаб недопустим")
                 }
+                validation {
+                    worker("Копируем поля в adValidating") { adValidating = adRequest.deepCopy() }
+                    worker("Очистка id") { adValidating.id = MkplAdId(adValidating.id.asString().trim()) }
+                    worker("Очистка заголовка") { adValidating.title = adValidating.title.trim() }
+                    worker("Очистка описания") { adValidating.description = adValidating.description.trim() }
+                    validateIdNotEmpty("Проверка на непустой id")
+                    validateIdProperFormat("Проверка формата id")
+                    validateTitleNotEmpty("Проверка на непустой заголовок")
+                    validateTitleHasContent("Проверка на наличие содержания в заголовке")
+                    validateDescriptionNotEmpty("Проверка на непустое описание")
+                    validateDescriptionHasContent("Проверка на наличие содержания в описании")
+
+                    finishAdValidation("Успешное завершение процедуры валидации")
+                }
             }
             operation("Удалить объявление", MkplCommand.DELETE) {
                 stubs("Обработка стабов") {
@@ -80,6 +129,14 @@ class MkplAdProcessor() {
                     stubValidationBadId("Имитация ошибки валидации id")
                     stubDbError("Имитация ошибки работы с БД")
                     stubNoCase("Ошибка: запрошенный стаб недопустим")
+                }
+                validation {
+                    worker("Копируем поля в adValidating") {
+                        adValidating = adRequest.deepCopy() }
+                    worker("Очистка id") { adValidating.id = MkplAdId(adValidating.id.asString().trim()) }
+                    validateIdNotEmpty("Проверка на непустой id")
+                    validateIdProperFormat("Проверка формата id")
+                    finishAdValidation("Успешное завершение процедуры валидации")
                 }
             }
             operation("Поиск объявлений", MkplCommand.SEARCH) {
@@ -89,6 +146,11 @@ class MkplAdProcessor() {
                     stubDbError("Имитация ошибки работы с БД")
                     stubNoCase("Ошибка: запрошенный стаб недопустим")
                 }
+                validation {
+                    worker("Копируем поля в adFilterValidating") { adFilterValidating = adFilterRequest.copy() }
+
+                    finishAdFilterValidation("Успешное завершение процедуры валидации")
+                }
 
             }
             operation("Поиск подходящих предложений для объявления", MkplCommand.OFFERS) {
@@ -97,6 +159,14 @@ class MkplAdProcessor() {
                     stubValidationBadId("Имитация ошибки валидации id")
                     stubDbError("Имитация ошибки работы с БД")
                     stubNoCase("Ошибка: запрошенный стаб недопустим")
+                }
+                validation {
+                    worker("Копируем поля в adValidating") { adValidating = adRequest.deepCopy() }
+                    worker("Очистка id") { adValidating.id = MkplAdId(adValidating.id.asString().trim()) }
+                    validateIdNotEmpty("Проверка на непустой id")
+                    validateIdProperFormat("Проверка формата id")
+
+                    finishAdValidation("Успешное завершение процедуры валидации")
                 }
             }
         }.build()
