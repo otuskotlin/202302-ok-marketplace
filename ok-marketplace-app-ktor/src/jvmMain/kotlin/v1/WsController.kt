@@ -10,62 +10,63 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import ru.otus.otuskotlin.marketplace.api.v1.apiV1Mapper
 import ru.otus.otuskotlin.marketplace.api.v1.models.IRequest
+import ru.otus.otuskotlin.marketplace.app.MkplAppSettings
+import ru.otus.otuskotlin.marketplace.biz.MkplAdProcessor
 import ru.otus.otuskotlin.marketplace.common.MkplContext
-import ru.otus.otuskotlin.marketplace.common.helpers.addError
-import ru.otus.otuskotlin.marketplace.common.helpers.asMkplError
 import ru.otus.otuskotlin.marketplace.common.helpers.isUpdatableCommand
+import ru.otus.otuskotlin.marketplace.common.models.MkplCommand
 import ru.otus.otuskotlin.marketplace.mappers.v1.fromTransport
 import ru.otus.otuskotlin.marketplace.mappers.v1.toTransportAd
 import ru.otus.otuskotlin.marketplace.mappers.v1.toTransportInit
-import ru.otus.otuskotlin.marketplace.stubs.MkplAdStub
 
-private val mutex = Mutex()
-private val sessions = mutableSetOf<WebSocketSession>()
+class WsHandlerV1 {
+    private val mutex = Mutex()
+    private val sessions = mutableSetOf<WebSocketSession>()
 
-suspend fun WebSocketSession.wsHandlerV1() {
-    mutex.withLock {
-        sessions.add(this)
-    }
-
-    // Handle init request
-    val ctx = MkplContext()
-    val init = apiV1Mapper.writeValueAsString(ctx.toTransportInit())
-    outgoing.send(Frame.Text(init))
-
-    // Handle flow
-    incoming.receiveAsFlow().mapNotNull { it ->
-        val frame = it as? Frame.Text ?: return@mapNotNull
-
-        val jsonStr = frame.readText()
-        val context = MkplContext()
-
-        // Handle without flow destruction
-        try {
-            val request = apiV1Mapper.readValue<IRequest>(jsonStr)
-            context.fromTransport(request)
-            context.adResponse = MkplAdStub.get()
-
-            val result = apiV1Mapper.writeValueAsString(context.toTransportAd())
-
-            // If change request, response is sent to everyone
-            if (context.isUpdatableCommand()) {
-                mutex.withLock {
-                    sessions.forEach {
-                        it.send(Frame.Text(result))
-                    }
-                }
-            } else {
-                outgoing.send(Frame.Text(result))
-            }
-        } catch (_: ClosedReceiveChannelException) {
-            mutex.withLock {
-                sessions.clear()
-            }
-        } catch (t: Throwable) {
-            context.addError(t.asMkplError())
-
-            val result = apiV1Mapper.writeValueAsString(context.toTransportInit())
-            outgoing.send(Frame.Text(result))
+    suspend fun handle(session: WebSocketSession, appSettings: MkplAppSettings) {
+        mutex.withLock {
+            sessions.add(session)
         }
-    }.collect()
+
+        val logger = appSettings.corSettings.loggerProvider.logger(WsHandlerV1::class)
+
+        // Handle init request
+        val ctx = MkplContext()
+        val init = apiV1Mapper.writeValueAsString(ctx.toTransportInit())
+        session.outgoing.send(Frame.Text(init))
+
+        // Handle flow
+        session.incoming.receiveAsFlow().mapNotNull { it ->
+            val frame = it as? Frame.Text ?: return@mapNotNull
+
+            val jsonStr = frame.readText()
+
+            // Handle without flow destruction
+            MkplAdProcessor().process(logger, "webSocket", MkplCommand.NONE,
+                { ctx ->
+                    val request = apiV1Mapper.readValue<IRequest>(jsonStr)
+                    ctx.fromTransport(request)
+                },
+                { ctx ->
+                    try {
+                        val result = apiV1Mapper.writeValueAsString(ctx.toTransportAd())
+
+                        // If change request, response is sent to everyone
+                        if (ctx.isUpdatableCommand()) {
+                            mutex.withLock {
+                                sessions.forEach {
+                                    it.send(Frame.Text(result))
+                                }
+                            }
+                        } else {
+                            session.outgoing.send(Frame.Text(result))
+                        }
+                    } catch (_: ClosedReceiveChannelException) {
+                        mutex.withLock {
+                            sessions.clear()
+                        }
+                    }
+                })
+        }.collect()
+    }
 }

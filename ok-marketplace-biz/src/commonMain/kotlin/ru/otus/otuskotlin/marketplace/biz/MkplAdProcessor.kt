@@ -1,14 +1,47 @@
 package ru.otus.otuskotlin.marketplace.biz
 
+import kotlinx.datetime.Clock
+import ru.otus.otuskotlin.marketplace.api.logs.mapper.toLog
 import ru.otus.otuskotlin.marketplace.biz.groups.operation
 import ru.otus.otuskotlin.marketplace.biz.groups.stubs
 import ru.otus.otuskotlin.marketplace.biz.workers.*
 import ru.otus.otuskotlin.marketplace.common.MkplContext
 import ru.otus.otuskotlin.marketplace.common.models.MkplCommand
 import ru.otus.otuskotlin.marketplace.cor.rootChain
+import ru.otus.otuskotlin.marketplace.cor.worker
+import ru.otus.otuskotlin.marketplace.logging.common.IMpLogWrapper
 
 class MkplAdProcessor() {
     suspend fun exec(ctx: MkplContext) = BusinessChain.exec(ctx)
+
+    suspend fun process(
+        logger: IMpLogWrapper,
+        logId: String,
+        command: MkplCommand,
+        fromTransport: suspend (MkplContext) -> Unit,
+        sendResponse: suspend (MkplContext) -> Unit) {
+
+        val ctx = MkplContext(
+            timeStart = Clock.System.now(),
+        )
+        var realCommand = command
+
+        logger.doWithLogging(id = logId) {
+            fromTransport(ctx)
+            realCommand = ctx.command
+
+            logger.info(
+                msg = "$realCommand request is got",
+                data = ctx.toLog("${logId}-got")
+            )
+            exec(ctx)
+            logger.info(
+                msg = "$realCommand request is handled",
+                data = ctx.toLog("${logId}-handled")
+            )
+            sendResponse(ctx)
+        }
+    }
 
     companion object {
         private val BusinessChain = rootChain<MkplContext> {

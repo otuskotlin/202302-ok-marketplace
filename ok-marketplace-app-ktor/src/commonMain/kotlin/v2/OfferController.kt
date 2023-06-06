@@ -1,22 +1,12 @@
 package ru.otus.otuskotlin.marketplace.app.v2
 
 import io.ktor.server.application.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
-import ru.otus.otuskotlin.marketplace.api.v2.apiV2Mapper
 import ru.otus.otuskotlin.marketplace.api.v2.models.AdOffersRequest
+import ru.otus.otuskotlin.marketplace.api.v2.models.AdOffersResponse
 import ru.otus.otuskotlin.marketplace.app.MkplAppSettings
-import ru.otus.otuskotlin.marketplace.common.MkplContext
-import ru.otus.otuskotlin.marketplace.mappers.v2.fromTransport
-import ru.otus.otuskotlin.marketplace.mappers.v2.toTransportOffers
+import ru.otus.otuskotlin.marketplace.common.models.MkplCommand
+import ru.otus.otuskotlin.marketplace.logging.common.IMpLogWrapper
 
-suspend fun ApplicationCall.offersAd(appSettings: MkplAppSettings) {
-    val processor = appSettings.processor
-    val request = apiV2Mapper.decodeFromString<AdOffersRequest>(receiveText())
-    val context = MkplContext()
-    context.fromTransport(request)
-    processor.exec(context)
-    respond(apiV2Mapper.encodeToString(context.toTransportOffers()))
-}
+suspend fun ApplicationCall.offersAd(appSettings: MkplAppSettings, logger: IMpLogWrapper) =
+    processV2<AdOffersRequest, AdOffersResponse>(appSettings, logger, "ad-offers", MkplCommand.OFFERS)
+
