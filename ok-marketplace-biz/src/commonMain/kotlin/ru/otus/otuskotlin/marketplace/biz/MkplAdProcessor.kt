@@ -14,19 +14,19 @@ import ru.otus.otuskotlin.marketplace.logging.common.IMpLogWrapper
 class MkplAdProcessor() {
     suspend fun exec(ctx: MkplContext) = BusinessChain.exec(ctx)
 
-    suspend fun process(
+    suspend fun <T> process(
         logger: IMpLogWrapper,
         logId: String,
         command: MkplCommand,
         fromTransport: suspend (MkplContext) -> Unit,
-        sendResponse: suspend (MkplContext) -> Unit) {
+        sendResponse: suspend (MkplContext) -> T): T {
 
         val ctx = MkplContext(
             timeStart = Clock.System.now(),
         )
         var realCommand = command
 
-        logger.doWithLogging(id = logId) {
+        return logger.doWithLogging(id = logId) {
             fromTransport(ctx)
             realCommand = ctx.command
 

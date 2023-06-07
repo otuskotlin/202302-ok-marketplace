@@ -1,7 +1,6 @@
 package ru.otus.otuskotlin.markeplace.springapp.api.v2.ws
 
 import kotlinx.coroutines.runBlocking
-import kotlinx.datetime.Clock
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import org.springframework.stereotype.Component
@@ -9,22 +8,25 @@ import org.springframework.web.socket.CloseStatus
 import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketSession
 import org.springframework.web.socket.handler.TextWebSocketHandler
-import ru.otus.otuskotlin.markeplace.springapp.service.MkplAdBlockingProcessor
 import ru.otus.otuskotlin.marketplace.api.v2.apiV2Mapper
 import ru.otus.otuskotlin.marketplace.api.v2.apiV2ResponseSerialize
 import ru.otus.otuskotlin.marketplace.api.v2.models.IRequest
+import ru.otus.otuskotlin.marketplace.biz.MkplAdProcessor
 import ru.otus.otuskotlin.marketplace.common.MkplContext
-import ru.otus.otuskotlin.marketplace.common.helpers.asMkplError
+import ru.otus.otuskotlin.marketplace.common.MkplCorSettings
 import ru.otus.otuskotlin.marketplace.common.helpers.isUpdatableCommand
+import ru.otus.otuskotlin.marketplace.common.models.MkplCommand
 import ru.otus.otuskotlin.marketplace.mappers.v2.fromTransport
 import ru.otus.otuskotlin.marketplace.mappers.v2.toTransportAd
 import ru.otus.otuskotlin.marketplace.mappers.v2.toTransportInit
 
 @Component
 class WsAdHandlerV2(
-    private val processor: MkplAdBlockingProcessor
+    private val processor: MkplAdProcessor,
+    settings: MkplCorSettings
 ) : TextWebSocketHandler() {
     private val sessions = mutableMapOf<String, WebSocketSession>()
+    private val logger = settings.loggerProvider.logger(WsAdHandlerV2::class)
 
     override fun afterConnectionEstablished(session: WebSocketSession) {
         sessions[session.id] = session
@@ -36,30 +38,22 @@ class WsAdHandlerV2(
     }
 
     override fun handleTextMessage(session: WebSocketSession, message: TextMessage) {
-        val ctx = MkplContext(timeStart = Clock.System.now())
-
         runBlocking {
-            try {
-                val request = apiV2Mapper.decodeFromString<IRequest>(message.payload)
-                ctx.fromTransport(request)
-
-                processor.exec(ctx)
-
-                val result = apiV2Mapper.encodeToString(ctx.toTransportAd())
-
-                if (ctx.isUpdatableCommand()) {
-                    sessions.values.forEach {
-                        it.sendMessage(TextMessage(result))
+            processor.process(logger, "ws-v2", MkplCommand.NONE,
+                { ctx ->
+                    val request = apiV2Mapper.decodeFromString<IRequest>(message.payload)
+                    ctx.fromTransport(request)
+                },
+                { ctx ->
+                    val result = apiV2Mapper.encodeToString(ctx.toTransportAd())
+                    if (ctx.isUpdatableCommand()) {
+                        sessions.values.forEach {
+                            it.sendMessage(TextMessage(result))
+                        }
+                    } else {
+                        session.sendMessage(TextMessage(result))
                     }
-                } else {
-                    session.sendMessage(TextMessage(result))
-                }
-            } catch (e: Exception) {
-                ctx.errors.add(e.asMkplError())
-
-                val response = apiV2ResponseSerialize(ctx.toTransportInit())
-                session.sendMessage(TextMessage(response))
-            }
+                })
         }
     }
 
