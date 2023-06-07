@@ -14,7 +14,7 @@ dependencies {
     val serializationVersion: String by project
 
     implementation("org.springframework.boot:spring-boot-starter-actuator") // info; refresh; springMvc output
-    implementation("org.springframework.boot:spring-boot-starter-web") // Controller, Service, etc..
+    implementation("org.springframework.boot:spring-boot-starter-webflux") // Controller, Service, etc..
     implementation("org.springframework.boot:spring-boot-starter-websocket") // Controller, Service, etc..
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springdocOpenapiUiVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin") // from models to json and Vice versa
@@ -39,6 +39,9 @@ dependencies {
 
     // biz
     implementation(project(":ok-marketplace-biz"))
+
+    // other
+    implementation(project(":ok-marketplace-lib-logging-logback"))
 
     // tests
     testImplementation("org.springframework.boot:spring-boot-starter-test")

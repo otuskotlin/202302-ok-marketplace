@@ -1,30 +1,29 @@
 package ru.otus.otuskotlin.markeplace.springapp.api.v1.controller
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.coEvery
+import io.mockk.coVerify
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
-import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.http.MediaType
-import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import ru.otus.otuskotlin.markeplace.springapp.service.MkplAdBlockingProcessor
+import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.web.reactive.function.BodyInserters
+import ru.otus.otuskotlin.markeplace.springapp.config.CorConfig
 import ru.otus.otuskotlin.marketplace.api.v1.models.*
+import ru.otus.otuskotlin.marketplace.biz.MkplAdProcessor
 import ru.otus.otuskotlin.marketplace.common.MkplContext
 import ru.otus.otuskotlin.marketplace.mappers.v1.*
 
-@WebMvcTest(AdController::class, OfferController::class)
+// Temporary simple test with stubs
+@WebFluxTest(AdController::class, OfferController::class, CorConfig::class)
 internal class AdControllerTest {
     @Autowired
-    private lateinit var mvc: MockMvc
+    private lateinit var webClient: WebTestClient
 
-    @Autowired
-    private lateinit var mapper: ObjectMapper
-
-    @MockBean
-    private lateinit var processor: MkplAdBlockingProcessor
+    @MockkBean(relaxUnitFun = true)
+    private lateinit var processor: MkplAdProcessor
 
     @Test
     fun createAd() = testStubAd(
@@ -68,20 +67,25 @@ internal class AdControllerTest {
         MkplContext().toTransportOffers()
     )
 
-    private fun <Req : Any, Res : Any> testStubAd(
+    private inline fun <reified Req : Any, reified Res : IResponse> testStubAd(
         url: String,
         requestObj: Req,
         responseObj: Res,
     ) {
-        val request = mapper.writeValueAsString(requestObj)
-        val response = mapper.writeValueAsString(responseObj)
+        coEvery { processor.process<Res>(any(), any(), any(), any(), any()) } returns responseObj
 
-        mvc.perform(
-            post(url)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(request)
-        )
-            .andExpect(status().isOk)
-            .andExpect(content().json(response))
+        webClient
+            .post()
+            .uri(url)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(BodyInserters.fromValue(requestObj))
+            .exchange()
+            .expectStatus().isOk
+            .expectBody(Res::class.java)
+            .value {
+                println("RESPONSE: $it")
+                assertThat(it).isEqualTo(responseObj)
+            }
+        coVerify { processor.process<Res>(any(), any(), any(), any(), any()) }
     }
 }
