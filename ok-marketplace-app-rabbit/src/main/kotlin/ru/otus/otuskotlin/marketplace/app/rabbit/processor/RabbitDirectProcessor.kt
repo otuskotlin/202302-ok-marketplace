@@ -8,10 +8,13 @@ import ru.otus.otuskotlin.marketplace.api.v1.models.IRequest
 import ru.otus.otuskotlin.marketplace.app.rabbit.RabbitProcessorBase
 import ru.otus.otuskotlin.marketplace.app.rabbit.config.RabbitConfig
 import ru.otus.otuskotlin.marketplace.app.rabbit.config.RabbitExchangeConfiguration
+import ru.otus.otuskotlin.marketplace.app.rabbit.config.corSettings
 import ru.otus.otuskotlin.marketplace.biz.MkplAdProcessor
 import ru.otus.otuskotlin.marketplace.common.MkplContext
+import ru.otus.otuskotlin.marketplace.common.MkplCorSettings
 import ru.otus.otuskotlin.marketplace.common.helpers.addError
 import ru.otus.otuskotlin.marketplace.common.helpers.asMkplError
+import ru.otus.otuskotlin.marketplace.common.models.MkplCommand
 import ru.otus.otuskotlin.marketplace.common.models.MkplState
 import ru.otus.otuskotlin.marketplace.mappers.v1.fromTransport
 import ru.otus.otuskotlin.marketplace.mappers.v1.toTransportAd
@@ -20,30 +23,29 @@ import ru.otus.otuskotlin.marketplace.mappers.v1.toTransportAd
 class RabbitDirectProcessorV1(
     config: RabbitConfig,
     processorConfig: RabbitExchangeConfiguration,
+    setting: MkplCorSettings = corSettings,
     private val processor: MkplAdProcessor = MkplAdProcessor(),
 ) : RabbitProcessorBase(config, processorConfig) {
-    override suspend fun Channel.processMessage(message: Delivery, context: MkplContext) {
-        apiV1Mapper.readValue(message.body, IRequest::class.java).run {
-            context.fromTransport(this).also {
-                println("TYPE: ${this::class.simpleName}")
-            }
-        }
-        val response = processor.exec(context).run { context.toTransportAd() }
-        apiV1Mapper.writeValueAsBytes(response).also {
-            println("Publishing $response to ${processorConfig.exchange} exchange for keyOut ${processorConfig.keyOut}")
-            basicPublish(processorConfig.exchange, processorConfig.keyOut, null, it)
-        }.also {
-            println("published")
-        }
-    }
 
-    override fun Channel.onError(e: Throwable, context: MkplContext) {
-        e.printStackTrace()
-        context.state = MkplState.FAILING
-        context.addError(error = arrayOf(e.asMkplError()))
-        val response = context.toTransportAd()
-        apiV1Mapper.writeValueAsBytes(response).also {
-            basicPublish(processorConfig.exchange, processorConfig.keyOut, null, it)
-        }
+    private val logger = setting.loggerProvider.logger(RabbitDirectProcessorV1::class)
+
+    override suspend fun Channel.processMessage(message: Delivery) {
+        processor.process(logger, "rabbit-v1", MkplCommand.NONE,
+            { ctx ->
+                apiV1Mapper.readValue(message.body, IRequest::class.java).run {
+                    ctx.fromTransport(this).also {
+                        println("TYPE: ${this::class.simpleName}")
+                    }
+                }
+            },
+            { ctx ->
+                val response = ctx.toTransportAd()
+                apiV1Mapper.writeValueAsBytes(response).also {
+                    println("Publishing $response to ${processorConfig.exchange} exchange for keyOut ${processorConfig.keyOut}")
+                    basicPublish(processorConfig.exchange, processorConfig.keyOut, null, it)
+                }.also {
+                    println("published")
+                }
+            })
     }
 }
