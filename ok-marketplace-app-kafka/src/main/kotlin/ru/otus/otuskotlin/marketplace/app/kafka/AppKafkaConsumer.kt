@@ -15,6 +15,8 @@ import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.errors.WakeupException
 import ru.otus.otuskotlin.marketplace.biz.MkplAdProcessor
 import ru.otus.otuskotlin.marketplace.common.MkplContext
+import ru.otus.otuskotlin.marketplace.common.MkplCorSettings
+import ru.otus.otuskotlin.marketplace.common.models.MkplCommand
 import java.time.Duration
 import java.util.*
 
@@ -31,10 +33,12 @@ interface ConsumerStrategy {
 class AppKafkaConsumer(
     private val config: AppKafkaConfig,
     consumerStrategies: List<ConsumerStrategy>,
+    setting: MkplCorSettings = corSettings,
     private val processor: MkplAdProcessor = MkplAdProcessor(),
     private val consumer: Consumer<String, String> = config.createKafkaConsumer(),
     private val producer: Producer<String, String> = config.createKafkaProducer()
 ) {
+    private val logger = setting.loggerProvider.logger(AppKafkaConsumer::class)
     private val process = atomic(true) // пояснить
     private val topicsAndStrategyByInputTopic = consumerStrategies.associate {
         val topics = it.topics(config)
@@ -45,9 +49,6 @@ class AppKafkaConsumer(
         try {
             consumer.subscribe(topicsAndStrategyByInputTopic.keys)
             while (process.value) {
-                val ctx = MkplContext(
-                    timeStart = Clock.System.now(),
-                )
                 val records: ConsumerRecords<String, String> = withContext(Dispatchers.IO) {
                     consumer.poll(Duration.ofSeconds(1))
                 }
@@ -55,17 +56,12 @@ class AppKafkaConsumer(
                     log.info { "Receive ${records.count()} messages" }
 
                 records.forEach { record: ConsumerRecord<String, String> ->
-                    try {
-                        log.info { "process ${record.key()} from ${record.topic()}:\n${record.value()}" }
-                        val (_, outputTopic, strategy) = topicsAndStrategyByInputTopic[record.topic()] ?: throw RuntimeException("Receive message from unknown topic ${record.topic()}")
+                    log.info { "process ${record.key()} from ${record.topic()}:\n${record.value()}" }
+                    val (_, outputTopic, strategy) = topicsAndStrategyByInputTopic[record.topic()] ?: throw RuntimeException("Receive message from unknown topic ${record.topic()}")
 
-                        strategy.deserialize(record.value(), ctx)
-                        processor.exec(ctx)
-
-                        sendResponse(ctx, strategy, outputTopic)
-                    } catch (ex: Exception) {
-                        log.error(ex) { "error" }
-                    }
+                    processor.process(logger, "kafka", MkplCommand.NONE,
+                        { ctx -> strategy.deserialize(record.value(), ctx) },
+                        { ctx -> sendResponse(ctx, strategy, outputTopic) })
                 }
             }
         } catch (ex: WakeupException) {
