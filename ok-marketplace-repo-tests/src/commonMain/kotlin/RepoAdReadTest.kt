@@ -9,6 +9,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 
+
 @OptIn(ExperimentalCoroutinesApi::class)
 abstract class RepoAdReadTest {
     abstract val repo: IAdRepository
@@ -42,3 +43,4 @@ abstract class RepoAdReadTest {
 
     }
 }
+

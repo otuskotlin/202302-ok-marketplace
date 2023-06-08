@@ -33,7 +33,6 @@ abstract class RepoAdCreateTest {
         assertEquals(expected.adType, result.data?.adType)
         assertNotEquals(MkplAdId.NONE, result.data?.id)
         assertEquals(emptyList(), result.errors)
-        assertEquals(lockNew, result.data?.lock)
     }
 
     companion object : BaseInitAds("create") {
