@@ -6,7 +6,7 @@ data class MkplAd(
     var lock: MkplAdLock = MkplAdLock.NONE,
     var description: String = "",
     var ownerId: MkplUserId = MkplUserId.NONE,
-    val adType: MkplDealSide = MkplDealSide.NONE,
+    var adType: MkplDealSide = MkplDealSide.NONE,
     var visibility: MkplVisibility = MkplVisibility.NONE,
     var productId: MkplProductId = MkplProductId.NONE,
     val permissionsClient: MutableSet<MkplAdPermissionClient> = mutableSetOf()

@@ -68,7 +68,7 @@ kotlin {
                 implementation(ktor("websockets")) // "io.ktor:ktor-server-websockets:$ktorVersion"
                 implementation(ktor("config-yaml")) // "io.ktor:ktor-server-config-yaml:$ktorVersion"
                 implementation(ktor("content-negotiation")) // "io.ktor:ktor-server-content-negotiation:$ktorVersion"
-                implementation(ktor("websockets")) // "io.ktor:ktor-websockets:$ktorVersion"
+
                 implementation(ktor("auth")) // "io.ktor:ktor-auth:$ktorVersion"
 
                 implementation(project(":ok-marketplace-common"))
@@ -84,6 +84,8 @@ kotlin {
                 implementation(project(":ok-marketplace-lib-logging-kermit"))
                 implementation(project(":ok-marketplace-api-log1"))
                 implementation(project(":ok-marketplace-mappers-log1"))
+                implementation(project(":ok-marketplace-repo-in-memory"))
+                implementation(project(":ok-marketplace-repo-stubs"))
 
                 implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
@@ -96,10 +98,9 @@ kotlin {
                 implementation(kotlin("test"))
                 implementation(kotlin("test-common"))
                 implementation(kotlin("test-annotations-common"))
-
+                implementation(project(":ok-marketplace-repo-tests"))
                 implementation(ktor("test-host"))
                 implementation(ktor("content-negotiation", prefix = "client-"))
-                implementation(ktor("websockets", prefix = "client-"))
             }
         }
 
@@ -123,7 +124,6 @@ kotlin {
                 implementation(ktor("cors")) // "io.ktor:ktor-cors:$ktorVersion"
                 implementation(ktor("auto-head-response"))
 
-                implementation(ktor("websockets")) // "io.ktor:ktor-websockets:$ktorVersion"
                 implementation(ktor("auth")) // "io.ktor:ktor-auth:$ktorVersion"
                 implementation(ktor("auth-jwt")) // "io.ktor:ktor-auth-jwt:$ktorVersion"
 
@@ -145,7 +145,6 @@ kotlin {
                 implementation(kotlin("test-junit"))
                 implementation(ktor("test-host")) // "io.ktor:ktor-server-test-host:$ktorVersion"
                 implementation(ktor("content-negotiation", prefix = "client-"))
-                implementation(ktor("websockets", prefix = "client-"))
             }
         }
     }

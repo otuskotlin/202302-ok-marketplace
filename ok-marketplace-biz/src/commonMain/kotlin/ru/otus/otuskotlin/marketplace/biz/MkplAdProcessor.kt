@@ -1,13 +1,16 @@
 package ru.otus.otuskotlin.marketplace.biz
 
 import ru.otus.otuskotlin.marketplace.common.MkplContext
+import ru.otus.otuskotlin.marketplace.common.MkplCorSettings
 import ru.otus.otuskotlin.marketplace.common.models.MkplCommand
 import ru.otus.otuskotlin.marketplace.common.models.MkplDealSide
 import ru.otus.otuskotlin.marketplace.common.models.MkplState
 import ru.otus.otuskotlin.marketplace.common.models.MkplWorkMode
 import ru.otus.otuskotlin.marketplace.stubs.MkplAdStub
 
-class MkplAdProcessor {
+class MkplAdProcessor(
+     val settings: MkplCorSettings = MkplCorSettings()
+) {
     suspend fun exec(ctx: MkplContext) {
         // TODO: Rewrite temporary stub solution with BIZ
         require(ctx.workMode == MkplWorkMode.STUB) {

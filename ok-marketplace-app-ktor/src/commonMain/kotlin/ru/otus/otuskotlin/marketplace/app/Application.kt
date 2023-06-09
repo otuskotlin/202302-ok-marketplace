@@ -15,19 +15,13 @@ import ru.otus.otuskotlin.marketplace.app.v2.v2Offer
 import ru.otus.otuskotlin.marketplace.app.v2.wsHandlerV2
 
 fun Application.module(appSettings: MkplAppSettings = initAppSettings(), installPlugins: Boolean = true) {
-    if (installPlugins) {
-        install(WebSockets)
-    }
+
 
     routing {
         get("/") {
             call.respondText("Hello, world!")
         }
         route("v2") {
-            install(ContentNegotiation) {
-                json(apiV2Mapper)
-            }
-
             v2Ad(appSettings)
             v2Offer(appSettings)
         }

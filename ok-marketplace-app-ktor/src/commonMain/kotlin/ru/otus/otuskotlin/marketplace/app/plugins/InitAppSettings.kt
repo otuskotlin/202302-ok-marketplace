@@ -5,13 +5,21 @@ import ru.otus.otuskotlin.marketplace.app.MkplAppSettings
 import ru.otus.otuskotlin.marketplace.biz.MkplAdProcessor
 import ru.otus.otuskotlin.marketplace.common.MkplCorSettings
 import ru.otus.otuskotlin.marketplace.logging.common.MpLoggerProvider
+import ru.otus.otuskotlin.marketplace.repo.inmemory.AdRepoInMemory
+import ru.otus.otuskotlin.marketplace.stubs.AdRepoStub
 
-fun Application.initAppSettings(): MkplAppSettings = MkplAppSettings(
-    appUrls = environment.config.propertyOrNull("ktor.urls")?.getList() ?: emptyList(),
-    corSettings = MkplCorSettings(
+fun Application.initAppSettings(): MkplAppSettings {
+    val corSettings = MkplCorSettings(
         loggerProvider = getLoggerProviderConf(),
-    ),
-    processor = MkplAdProcessor(),
-)
+        repoTest = AdRepoInMemory(),
+        repoProd = AdRepoInMemory(),
+        repoStub = AdRepoStub(),
+    )
+    return MkplAppSettings(
+        appUrls = environment.config.propertyOrNull("ktor.urls")?.getList() ?: emptyList(),
+        corSettings = corSettings,
+        processor = MkplAdProcessor(corSettings),
+    )
+}
 
 expect fun Application.getLoggerProviderConf(): MpLoggerProvider
