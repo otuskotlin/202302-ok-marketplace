@@ -1,0 +1,17 @@
+{
+  "responseType": "create",
+  "requestId": "12345",
+  "result": "error",
+  "errors": null,
+  "ad": {
+    "title": null,
+    "description": null,
+    "adType": null,
+    "visibility": null,
+    "productId": null,
+    "id": null,
+    "ownerId": null,
+    "lock": null,
+    "permissions": null
+  }
+}

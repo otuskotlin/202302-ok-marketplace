@@ -49,6 +49,7 @@ class V2AdInmemoryApiTest {
             description = "КРУТЕЙШИЙ",
             adType = DealSide.DEMAND,
             visibility = AdVisibility.PUBLIC,
+            productId = "111"
         )
 
         val response = client.post("/v2/ad/create") {

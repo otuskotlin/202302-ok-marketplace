@@ -4,10 +4,13 @@ import ru.otus.otuskotlin.marketplace.biz.groups.operation
 import ru.otus.otuskotlin.marketplace.biz.groups.stubs
 import ru.otus.otuskotlin.marketplace.biz.workers.*
 import ru.otus.otuskotlin.marketplace.common.MkplContext
+import ru.otus.otuskotlin.marketplace.common.MkplCorSettings
 import ru.otus.otuskotlin.marketplace.common.models.MkplCommand
 import ru.otus.otuskotlin.marketplace.cor.rootChain
 
-class MkplAdProcessor() {
+class MkplAdProcessor(
+     val settings: MkplCorSettings = MkplCorSettings()
+) {
     suspend fun exec(ctx: MkplContext) = BusinessChain.exec(ctx)
 
     companion object {
