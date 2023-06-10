@@ -58,7 +58,9 @@ kotlin {
             dependencies {
                 implementation(kotlin("stdlib-common"))
                 implementation(ktor("core")) // "io.ktor:ktor-server-core:$ktorVersion"
-
+                implementation(ktor("locations"))
+                implementation(ktor("default-headers")) // "io.ktor:ktor-cors:$ktorVersion"
+                implementation(ktor("call-logging"))
                 implementation(ktor("core")) // "io.ktor:ktor-server-core:$ktorVersion"
                 implementation(ktor("cio")) // "io.ktor:ktor-server-cio:$ktorVersion"
                 implementation(ktor("auth")) // "io.ktor:ktor-server-auth:$ktorVersion"
@@ -71,19 +73,20 @@ kotlin {
                 implementation(ktor("websockets")) // "io.ktor:ktor-websockets:$ktorVersion"
                 implementation(ktor("auth")) // "io.ktor:ktor-auth:$ktorVersion"
 
+                implementation(project(":ok-marketplace-repo-in-memory"))
+                implementation(project(":ok-marketplace-repo-stubs"))
                 implementation(project(":ok-marketplace-common"))
                 implementation(project(":ok-marketplace-biz"))
 
                 // v2 api
                 implementation(project(":ok-marketplace-api-v2-kmp"))
                 implementation(project(":ok-marketplace-mappers-v2"))
-
                 // Stubs
                 implementation(project(":ok-marketplace-stubs"))
-
                 implementation(project(":ok-marketplace-lib-logging-kermit"))
                 implementation(project(":ok-marketplace-api-log1"))
                 implementation(project(":ok-marketplace-mappers-log1"))
+                implementation(project(":ok-marketplace-lib-logging-logback"))
 
                 implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
@@ -96,7 +99,7 @@ kotlin {
                 implementation(kotlin("test"))
                 implementation(kotlin("test-common"))
                 implementation(kotlin("test-annotations-common"))
-
+                implementation(project(":ok-marketplace-repo-tests"))
                 implementation(ktor("test-host"))
                 implementation(ktor("content-negotiation", prefix = "client-"))
                 implementation(ktor("websockets", prefix = "client-"))

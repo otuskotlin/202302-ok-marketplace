@@ -2,21 +2,30 @@ package ru.otus.otuskotlin.marketplace.biz
 
 import kotlinx.datetime.Clock
 import ru.otus.otuskotlin.marketplace.api.logs.mapper.toLog
+import ru.otus.otuskotlin.marketplace.biz.general.initRepo
+import ru.otus.otuskotlin.marketplace.biz.general.prepareResult
 import ru.otus.otuskotlin.marketplace.biz.groups.operation
 import ru.otus.otuskotlin.marketplace.biz.groups.stubs
+import ru.otus.otuskotlin.marketplace.biz.repo.*
 import ru.otus.otuskotlin.marketplace.biz.validation.*
 import ru.otus.otuskotlin.marketplace.biz.workers.*
 import ru.otus.otuskotlin.marketplace.common.MkplContext
+import ru.otus.otuskotlin.marketplace.common.MkplCorSettings
 import ru.otus.otuskotlin.marketplace.common.helpers.asMkplError
 import ru.otus.otuskotlin.marketplace.common.helpers.fail
 import ru.otus.otuskotlin.marketplace.common.models.MkplAdId
 import ru.otus.otuskotlin.marketplace.common.models.MkplCommand
+import ru.otus.otuskotlin.marketplace.common.models.MkplState
+import ru.otus.otuskotlin.marketplace.cor.chain
 import ru.otus.otuskotlin.marketplace.cor.rootChain
 import ru.otus.otuskotlin.marketplace.cor.worker
 import ru.otus.otuskotlin.marketplace.logging.common.IMpLogWrapper
 
-class MkplAdProcessor() {
-    suspend fun exec(ctx: MkplContext) = BusinessChain.exec(ctx)
+
+class MkplAdProcessor(
+    private val settings: MkplCorSettings = MkplCorSettings()
+) {
+    suspend fun exec(ctx: MkplContext) = BusinessChain.exec(ctx.apply { settings =  this@MkplAdProcessor.settings})
 
     suspend fun <T> process(
         logger: IMpLogWrapper,
@@ -61,7 +70,7 @@ class MkplAdProcessor() {
     companion object {
         private val BusinessChain = rootChain<MkplContext> {
             initStatus("Инициализация статуса")
-
+            initRepo("Инициализация репозитория")
             operation("Создание объявления", MkplCommand.CREATE) {
                 stubs("Обработка стабов") {
                     stubCreateSuccess("Имитация успешной обработки")
@@ -82,6 +91,12 @@ class MkplAdProcessor() {
 
                     finishAdValidation("Завершение проверок")
                 }
+                chain {
+                    title = "Логика сохранения"
+                    repoPrepareCreate("Подготовка объекта для сохранения")
+                    repoCreate("Создание объявления в БД")
+                }
+                prepareResult("Подготовка ответа")
             }
             operation("Получить объявление", MkplCommand.READ) {
                 stubs("Обработка стабов") {
@@ -98,6 +113,17 @@ class MkplAdProcessor() {
 
                     finishAdValidation("Успешное завершение процедуры валидации")
                 }
+
+                chain {
+                    title = "Логика чтения"
+                    repoRead("Чтение объявления из БД")
+                    worker {
+                        title = "Подготовка ответа для Read"
+                        on { state == MkplState.RUNNING }
+                        handle { adRepoDone = adRepoRead }
+                    }
+                }
+                prepareResult("Подготовка ответа")
             }
             operation("Изменить объявление", MkplCommand.UPDATE) {
                 stubs("Обработка стабов") {
@@ -122,6 +148,13 @@ class MkplAdProcessor() {
 
                     finishAdValidation("Успешное завершение процедуры валидации")
                 }
+                chain {
+                    title = "Логика сохранения"
+                    repoRead("Чтение объявления из БД")
+                    repoPrepareUpdate("Подготовка объекта для обновления")
+                    repoUpdate("Обновление объявления в БД")
+                }
+                prepareResult("Подготовка ответа")
             }
             operation("Удалить объявление", MkplCommand.DELETE) {
                 stubs("Обработка стабов") {
@@ -138,6 +171,13 @@ class MkplAdProcessor() {
                     validateIdProperFormat("Проверка формата id")
                     finishAdValidation("Успешное завершение процедуры валидации")
                 }
+                chain {
+                    title = "Логика удаления"
+                    repoRead("Чтение объявления из БД")
+                    repoPrepareDelete("Подготовка объекта для удаления")
+                    repoDelete("Удаление объявления из БД")
+                }
+                prepareResult("Подготовка ответа")
             }
             operation("Поиск объявлений", MkplCommand.SEARCH) {
                 stubs("Обработка стабов") {
@@ -151,7 +191,8 @@ class MkplAdProcessor() {
 
                     finishAdFilterValidation("Успешное завершение процедуры валидации")
                 }
-
+                repoSearch("Поиск объявления в БД по фильтру")
+                prepareResult("Подготовка ответа")
             }
             operation("Поиск подходящих предложений для объявления", MkplCommand.OFFERS) {
                 stubs("Обработка стабов") {
@@ -168,6 +209,13 @@ class MkplAdProcessor() {
 
                     finishAdValidation("Успешное завершение процедуры валидации")
                 }
+                chain {
+                    title = "Логика поиска в БД"
+                    repoRead("Чтение объявления из БД")
+                    repoPrepareOffers("Подготовка данных для поиска предложений")
+                    repoOffers("Поиск предложений для объявления в БД")
+                }
+                prepareResult("Подготовка ответа")
             }
         }.build()
     }
