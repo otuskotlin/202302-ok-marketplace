@@ -1,20 +1,22 @@
-package repo
+package ru.otus.otuskotlin.marketplace.app.repo
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.SerializationFeature
 import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.serialization.jackson.*
 import io.ktor.server.testing.*
-import org.junit.Test
-import ru.otus.otuskotlin.marketplace.api.v1.models.*
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import ru.otus.otuskotlin.marketplace.api.v2.apiV2Mapper
+import ru.otus.otuskotlin.marketplace.api.v2.models.*
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
+
 const val COMMON_REQUEST_ID = "12345"
-class V1AdInmemoryApiTest {
+class V2AdInmemoryApiTest {
+    private val uuidOld = "10000000-0000-0000-0000-000000000001"
+
 
     private val createAd = AdCreateObject(
         title = "Болт",
@@ -22,17 +24,15 @@ class V1AdInmemoryApiTest {
         adType = DealSide.DEMAND,
         visibility = AdVisibility.PUBLIC,
     )
-    private val requestCreateObj = AdCreateRequest(
+    private val requestObj = AdCreateRequest(
         requestId = "12345",
         ad = createAd,
         debug = AdDebug(
             mode = AdRequestDebugMode.TEST,
         )
     )
-
     @Test
     fun create() = testApplication {
-        val client = myClient()
         val responseObj = initObject(client)
         assertEquals(createAd.title, responseObj.ad?.title)
         assertEquals(createAd.description, responseObj.ad?.description)
@@ -42,37 +42,39 @@ class V1AdInmemoryApiTest {
 
     @Test
     fun read() = testApplication {
-        val client = myClient()
-        val id = initObject(client).ad?.id
-        val response = client.post("/v1/ad/read") {
+        val adCreateResponse = initObject(client)
+        val oldId = adCreateResponse.ad?.id
+        val response = client.post("/v2/ad/read") {
+
             val requestObj = AdReadRequest(
                 requestId = "12345",
-                ad = AdReadObject(id),
+                ad = AdReadObject(oldId),
                 debug = AdDebug(
                     mode = AdRequestDebugMode.TEST,
                 )
             )
             contentType(ContentType.Application.Json)
-            setBody(requestObj)
+            val requestJson = apiV2Mapper.encodeToString(requestObj)
+            setBody(requestJson)
         }
-        val responseObj = response.body<AdReadResponse>()
+        val responseJson = response.bodyAsText()
+        val responseObj = apiV2Mapper.decodeFromString<AdReadResponse>(responseJson)
         assertEquals(200, response.status.value)
-        assertEquals(id, responseObj.ad?.id)
+        assertEquals(oldId, responseObj.ad?.id)
     }
 
     @Test
     fun update() = testApplication {
-        val client = myClient()
-
+        val initObject = initObject(client)
         val adUpdate = AdUpdateObject(
-            id = initObject(client).ad?.id,
+            id = initObject.ad?.id,
             title = "Болт",
             description = "КРУТЕЙШИЙ",
             adType = DealSide.DEMAND,
             visibility = AdVisibility.PUBLIC,
         )
 
-        val response = client.post("/v1/ad/update") {
+        val response = client.post("/v2/ad/update") {
             val requestObj = AdUpdateRequest(
                 requestId = "12345",
                 ad = adUpdate,
@@ -81,9 +83,11 @@ class V1AdInmemoryApiTest {
                 )
             )
             contentType(ContentType.Application.Json)
-            setBody(requestObj)
+            val requestJson = apiV2Mapper.encodeToString(requestObj)
+            setBody(requestJson)
         }
-        val responseObj = response.body<AdUpdateResponse>()
+        val responseJson = response.bodyAsText()
+        val responseObj = apiV2Mapper.decodeFromString<AdUpdateResponse>(responseJson)
         assertEquals(200, response.status.value)
         assertEquals(adUpdate.id, responseObj.ad?.id)
         assertEquals(adUpdate.title, responseObj.ad?.title)
@@ -94,32 +98,32 @@ class V1AdInmemoryApiTest {
 
     @Test
     fun delete() = testApplication {
-        val client = myClient()
-        val oldId = initObject(client).ad?.id
-
-        val response = client.post("/v1/ad/delete") {
+        val initObject = initObject(client)
+        val id = initObject.ad?.id
+        val response = client.post("/v2/ad/delete") {
             val requestObj = AdDeleteRequest(
                 requestId = "12345",
                 ad = AdDeleteObject(
-                    id = oldId,
+                    id = id,
                 ),
                 debug = AdDebug(
                     mode = AdRequestDebugMode.TEST,
                 )
             )
             contentType(ContentType.Application.Json)
-            setBody(requestObj)
+            val requestJson = apiV2Mapper.encodeToString(requestObj)
+            setBody(requestJson)
         }
-        val responseObj = response.body<AdDeleteResponse>()
+        val responseJson = response.bodyAsText()
+        val responseObj = apiV2Mapper.decodeFromString<AdDeleteResponse>(responseJson)
         assertEquals(200, response.status.value)
-        assertEquals(oldId, responseObj.ad?.id)
+        assertEquals(id, responseObj.ad?.id)
     }
 
     @Test
     fun search() = testApplication {
-        val client = myClient()
         val initObject = initObject(client)
-        val response = client.post("/v1/ad/search") {
+        val response = client.post("/v2/ad/search") {
             val requestObj = AdSearchRequest(
                 requestId = "12345",
                 adFilter = AdSearchFilter(),
@@ -128,52 +132,46 @@ class V1AdInmemoryApiTest {
                 )
             )
             contentType(ContentType.Application.Json)
-            setBody(requestObj)
+            val requestJson = apiV2Mapper.encodeToString(requestObj)
+            setBody(requestJson)
         }
-        val responseObj = response.body<AdSearchResponse>()
+        val responseJson = response.bodyAsText()
+        val responseObj = apiV2Mapper.decodeFromString<AdSearchResponse>(responseJson)
         assertEquals(200, response.status.value)
         assertNotEquals(0, responseObj.ads?.size)
         assertEquals(initObject.ad?.id, responseObj.ads?.first()?.id)
     }
+    private suspend fun initObject(client: HttpClient): AdCreateResponse {
+        val response = client.post("/v2/ad/create") {
+            contentType(ContentType.Application.Json)
+            val requestJson = apiV2Mapper.encodeToString(requestObj)
+            setBody(requestJson)
+        }
+        val responseJson = response.bodyAsText()
+        assertEquals(200, response.status.value)
+        return apiV2Mapper.decodeFromString<AdCreateResponse>(responseJson)
+    }
 
     @Test
     fun offers() = testApplication {
-        val client = myClient()
-        val oldId = initObject(client).ad?.id
-        val response = client.post("/v1/ad/offers") {
+        val response = client.post("/v2/ad/offers") {
             val requestObj = AdOffersRequest(
                 requestId = COMMON_REQUEST_ID,
                 ad = AdReadObject(
-                    id = oldId,
+                    id = uuidOld,
                 ),
                 debug = AdDebug(
                     mode = AdRequestDebugMode.TEST,
                 )
             )
             contentType(ContentType.Application.Json)
-            setBody(requestObj)
+            val requestJson = apiV2Mapper.encodeToString(requestObj)
+            setBody(requestJson)
         }
-        val responseObj = response.body<AdOffersResponse>()
+        val responseJson = response.bodyAsText()
+        val responseObj = apiV2Mapper.decodeFromString<AdOffersResponse>(responseJson)
         assertEquals(200, response.status.value)
+        assertNotEquals(0, responseObj.ads?.size)
         assertEquals(COMMON_REQUEST_ID, responseObj.requestId)
-    }
-    private suspend fun initObject(client: HttpClient): AdCreateResponse {
-        val responseСreate = client.post("/v1/ad/create") {
-            contentType(ContentType.Application.Json)
-            setBody(requestCreateObj)
-        }
-        assertEquals(200, responseСreate.status.value)
-        return responseСreate.body<AdCreateResponse>()
-    }
-
-    private fun ApplicationTestBuilder.myClient() = createClient {
-        install(ContentNegotiation) {
-            jackson {
-                disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-
-                enable(SerializationFeature.INDENT_OUTPUT)
-                writerWithDefaultPrettyPrinter()
-            }
-        }
     }
 }

@@ -3,7 +3,9 @@ plugins {
 }
 
 kotlin {
-    jvm {}
+    jvm {
+        withJava()
+    }
     linuxX64 {}
     macosX64 {}
     macosArm64 {}
@@ -19,6 +21,7 @@ kotlin {
                 implementation(kotlin("stdlib-common"))
 
                 implementation(project(":ok-marketplace-common"))
+                implementation(project(":ok-marketplace-repo-in-memory"))
                 implementation(project(":ok-marketplace-stubs"))
                 implementation(project(":ok-marketplace-lib-cor"))
                 implementation(project(":ok-marketplace-mappers-log1"))

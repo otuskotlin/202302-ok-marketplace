@@ -58,10 +58,7 @@ kotlin {
             dependencies {
                 implementation(kotlin("stdlib-common"))
                 implementation(ktor("core")) // "io.ktor:ktor-server-core:$ktorVersion"
-                implementation(ktor("locations"))
-                implementation(ktor("default-headers")) // "io.ktor:ktor-cors:$ktorVersion"
-                implementation(ktor("call-logging"))
-                implementation(ktor("core")) // "io.ktor:ktor-server-core:$ktorVersion"
+
                 implementation(ktor("cio")) // "io.ktor:ktor-server-cio:$ktorVersion"
                 implementation(ktor("auth")) // "io.ktor:ktor-server-auth:$ktorVersion"
                 implementation(ktor("auto-head-response")) // "io.ktor:ktor-server-auto-head-response:$ktorVersion"
@@ -86,7 +83,6 @@ kotlin {
                 implementation(project(":ok-marketplace-lib-logging-kermit"))
                 implementation(project(":ok-marketplace-api-log1"))
                 implementation(project(":ok-marketplace-mappers-log1"))
-                implementation(project(":ok-marketplace-lib-logging-logback"))
 
                 implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
@@ -123,8 +119,7 @@ kotlin {
                 implementation(ktor("auto-head-response"))
                 implementation(ktor("cors")) // "io.ktor:ktor-cors:$ktorVersion"
                 implementation(ktor("default-headers")) // "io.ktor:ktor-cors:$ktorVersion"
-                implementation(ktor("cors")) // "io.ktor:ktor-cors:$ktorVersion"
-                implementation(ktor("auto-head-response"))
+
 
                 implementation(ktor("websockets")) // "io.ktor:ktor-websockets:$ktorVersion"
                 implementation(ktor("auth")) // "io.ktor:ktor-auth:$ktorVersion"

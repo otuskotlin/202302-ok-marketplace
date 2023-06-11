@@ -42,6 +42,16 @@ class AdRepoInMemory(
             isSuccess = true,
         )
     }
+    fun saveDbRequest(rq: DbAdRequest): DbAdResponse {
+        val key = randomUuid()
+        val ad = rq.ad.copy(id = MkplAdId(key))
+        val entity = AdEntity(ad)
+        cache.put(key, entity)
+        return DbAdResponse(
+            data = ad,
+            isSuccess = true,
+        )
+    }
 
     override suspend fun readAd(rq: DbAdIdRequest): DbAdResponse {
         val key = rq.id.takeIf { it != MkplAdId.NONE }?.asString() ?: return resultErrorEmptyId
