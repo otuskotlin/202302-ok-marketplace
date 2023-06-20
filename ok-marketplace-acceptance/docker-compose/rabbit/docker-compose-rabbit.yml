@@ -1,6 +1,6 @@
 # Конфигурация для rabbit + (в перспективе) postgresql
 
-version: '3'
+version: '2.4'
 services:
   app-rabbit:
     image: ok-marketplace-app-rabbit:latest
