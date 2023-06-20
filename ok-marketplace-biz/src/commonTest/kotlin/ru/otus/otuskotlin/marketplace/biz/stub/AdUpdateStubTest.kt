@@ -4,6 +4,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import ru.otus.otuskotlin.marketplace.biz.MkplAdProcessor
 import ru.otus.otuskotlin.marketplace.common.MkplContext
+import ru.otus.otuskotlin.marketplace.common.MkplCorSettings
 import ru.otus.otuskotlin.marketplace.common.models.*
 import ru.otus.otuskotlin.marketplace.common.stubs.MkplStubs
 import kotlin.test.Test
@@ -12,7 +13,7 @@ import kotlin.test.assertEquals
 @OptIn(ExperimentalCoroutinesApi::class)
 class AdUpdateStubTest {
 
-    private val processor = MkplAdProcessor()
+    private val processor = MkplAdProcessor(MkplCorSettings())
     val id = MkplAdId("777")
     val title = "title 666"
     val description = "desc 666"

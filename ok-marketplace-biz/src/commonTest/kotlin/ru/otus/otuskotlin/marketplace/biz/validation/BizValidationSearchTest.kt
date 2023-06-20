@@ -4,6 +4,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import ru.otus.otuskotlin.marketplace.biz.MkplAdProcessor
 import ru.otus.otuskotlin.marketplace.common.MkplContext
+import ru.otus.otuskotlin.marketplace.common.MkplCorSettings
 import ru.otus.otuskotlin.marketplace.common.models.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -13,7 +14,7 @@ import kotlin.test.assertNotEquals
 class BizValidationSearchTest {
 
     private val command = MkplCommand.SEARCH
-    private val processor by lazy { MkplAdProcessor() }
+    private val processor = MkplAdProcessor(MkplCorSettings())
 
     @Test
     fun correctEmpty() = runTest {
