@@ -5,7 +5,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import kotlinx.datetime.Clock
 import mu.KotlinLogging
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -34,7 +33,7 @@ class AppKafkaConsumer(
     private val config: AppKafkaConfig,
     consumerStrategies: List<ConsumerStrategy>,
     setting: MkplCorSettings = corSettings,
-    private val processor: MkplAdProcessor = MkplAdProcessor(),
+    private val processor: MkplAdProcessor = MkplAdProcessor(setting),
     private val consumer: Consumer<String, String> = config.createKafkaConsumer(),
     private val producer: Producer<String, String> = config.createKafkaProducer()
 ) {

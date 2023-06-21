@@ -6,13 +6,19 @@ import ru.otus.otuskotlin.marketplace.app.rabbit.controller.RabbitController
 import ru.otus.otuskotlin.marketplace.app.rabbit.processor.RabbitDirectProcessorV1
 import ru.otus.otuskotlin.marketplace.app.rabbit.processor.RabbitDirectProcessorV2
 import ru.otus.otuskotlin.marketplace.biz.MkplAdProcessor
+import ru.otus.otuskotlin.marketplace.common.MkplCorSettings
+import ru.otus.otuskotlin.marketplace.logging.common.MpLoggerProvider
+import ru.otus.otuskotlin.marketplace.logging.jvm.mpLoggerLogback
 
 
 fun main() {
     val config = RabbitConfig(
         host = System.getenv("RABBIT_HOST") ?: RabbitConfig.HOST,
     )
-    val adProcessor = MkplAdProcessor()
+    val corSettings = MkplCorSettings(
+        loggerProvider = MpLoggerProvider { mpLoggerLogback(it) },
+    )
+    val adProcessor = MkplAdProcessor(corSettings)
 
     val producerConfigV1 = RabbitExchangeConfiguration(
         keyIn = "in-v1",

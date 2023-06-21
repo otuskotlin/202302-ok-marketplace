@@ -18,5 +18,5 @@ class CorConfig {
     )
 
     @Bean
-    fun processor() = MkplAdProcessor()
+    fun processor(corSettings: MkplCorSettings) = MkplAdProcessor(corSettings)
 }

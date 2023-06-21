@@ -20,7 +20,7 @@ class RabbitDirectProcessorV2(
     config: RabbitConfig,
     processorConfig: RabbitExchangeConfiguration,
     setting: MkplCorSettings = corSettings,
-    private val processor: MkplAdProcessor = MkplAdProcessor(),
+    private val processor: MkplAdProcessor = MkplAdProcessor(setting),
 ) : RabbitProcessorBase(config, processorConfig) {
 
     private val logger = setting.loggerProvider.logger(RabbitDirectProcessorV1::class)
