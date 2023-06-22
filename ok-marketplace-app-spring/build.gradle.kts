@@ -1,30 +1,25 @@
 plugins {
-    id("org.springframework.boot")
-    id("io.spring.dependency-management")
-    kotlin("jvm")
-    kotlin("plugin.spring")
-    kotlin("plugin.serialization")
-    id("com.bmuschko.docker-spring-boot-application")
+    alias(libs.plugins.spring.boot)
+    alias(libs.plugins.spring.dependency)
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.spring.kotlin)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.bmuschko.docker.spring.boot.application)
 }
 
 dependencies {
-    val kotestVersion: String by project
-    val springdocOpenapiUiVersion: String by project
-    val coroutinesVersion: String by project
-    val serializationVersion: String by project
-
     implementation("org.springframework.boot:spring-boot-starter-actuator") // info; refresh; springMvc output
     implementation("org.springframework.boot:spring-boot-starter-webflux") // Controller, Service, etc..
     implementation("org.springframework.boot:spring-boot-starter-websocket") // Controller, Service, etc..
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springdocOpenapiUiVersion")
+    implementation(libs.spring.doc)
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin") // from models to json and Vice versa
     implementation("org.jetbrains.kotlin:kotlin-reflect") // for spring-boot app
     implementation("org.jetbrains.kotlin:kotlin-stdlib") // for spring-boot app
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${coroutinesVersion}")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:${coroutinesVersion}")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:${coroutinesVersion}")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.reactor)
+    implementation(libs.kotlinx.coroutines.reactive)
+    implementation(libs.kotlinx.serialization.core)
+    implementation(libs.kotlinx.serialization.json)
 
     // transport models
     implementation(project(":ok-marketplace-common"))
@@ -46,9 +41,9 @@ dependencies {
     // tests
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 
-    testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
+    testImplementation(libs.kotest.runner.junit5)
     testImplementation("org.springframework.boot:spring-boot-starter-webflux") // Controller, Service, etc..
-    testImplementation("com.ninja-squad:springmockk:3.0.1") // mockking beans
+    testImplementation(libs.spring.mockk) // mockking beans
 }
 
 tasks {

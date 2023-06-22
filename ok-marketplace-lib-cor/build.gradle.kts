@@ -15,13 +15,11 @@ kotlin {
     macosArm64 {}
 
     sourceSets {
-        val coroutinesVersion: String by project
-
         @Suppress("UNUSED_VARIABLE")
         val commonMain by getting {
             dependencies {
                 implementation(kotlin("stdlib-common"))
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
+                implementation(libs.kotlinx.coroutines.core)
             }
         }
         @Suppress("UNUSED_VARIABLE")
@@ -29,7 +27,7 @@ kotlin {
             dependencies {
                 implementation(kotlin("test-common"))
                 implementation(kotlin("test-annotations-common"))
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion")
+                implementation(libs.kotlinx.coroutines.test)
             }
         }
         @Suppress("UNUSED_VARIABLE")

@@ -1,8 +1,8 @@
 plugins {
-    id("org.springframework.boot")
-    id("io.spring.dependency-management")
-    kotlin("jvm")
-    kotlin("plugin.spring")
+    alias(libs.plugins.spring.boot)
+    alias(libs.plugins.spring.dependency)
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.spring.kotlin)
 }
 
 val coroutinesVersion: String by project
@@ -13,14 +13,14 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${coroutinesVersion}")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:${coroutinesVersion}")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:${coroutinesVersion}")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.reactor)
+    implementation(libs.kotlinx.coroutines.reactive)
+    implementation(libs.kotlinx.serialization.core)
+    implementation(libs.kotlinx.serialization.json)
 
-    implementation("org.jetbrains.kotlinx:kotlinx-datetime:$datetimeVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
+    implementation(libs.kotlinx.datetime)
+    implementation(libs.kotlinx.coroutines.core)
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
     implementation("org.springframework.boot:spring-boot-starter-validation")

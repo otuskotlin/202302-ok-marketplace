@@ -9,8 +9,6 @@ kotlin {
     macosArm64 {}
 
     sourceSets {
-        val coroutinesVersion: String by project
-
         all { languageSettings.optIn("kotlin.RequiresOptIn") }
 
         @Suppress("UNUSED_VARIABLE")
@@ -30,7 +28,7 @@ kotlin {
                 implementation(kotlin("test-common"))
                 implementation(kotlin("test-annotations-common"))
 
-                api("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion")
+                api(libs.kotlinx.coroutines.test)
             }
         }
         @Suppress("UNUSED_VARIABLE")

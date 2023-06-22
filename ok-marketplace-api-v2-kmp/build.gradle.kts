@@ -1,7 +1,7 @@
 plugins {
     kotlin("multiplatform")
-    id("org.openapi.generator")
-    kotlin("plugin.serialization")
+    alias(libs.plugins.openapi.generator)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 kotlin {
@@ -11,8 +11,6 @@ kotlin {
     macosArm64 {}
 
     sourceSets {
-        val serializationVersion: String by project
-
         @Suppress("UNUSED_VARIABLE")
         val commonMain by getting {
 
@@ -21,8 +19,8 @@ kotlin {
             dependencies {
                 implementation(kotlin("stdlib-common"))
 
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
+                implementation(libs.kotlinx.serialization.core)
+                implementation(libs.kotlinx.serialization.json)
             }
         }
 

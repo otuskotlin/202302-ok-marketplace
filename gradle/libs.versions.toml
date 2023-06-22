@@ -1,0 +1,119 @@
+[versions]
+bmuschkoVersion="8.1.0"
+
+kotlinVersion="1.8.10"
+coroutinesVersion="1.6.4"
+serializationVersion="1.4.1"
+datetimeVersion="0.4.0"
+atomicfuVersion="0.20.2"
+kotlinLoggingJvmVersion="3.0.5"
+
+openapiVersion="6.5.0"
+jacksonVersion="2.14.1"
+
+kotestVersion="5.5.5"
+testContainersVersion="1.17.4"
+
+kermitLoggerVersion="2.0.0-RC3"
+logbackVersion="1.4.6"
+logbackKafkaVersion="0.2.0-RC2"
+logbackEncoderVersion="7.3"
+janinoVersion="3.1.9"
+
+ktorVersion="2.2.4"
+
+# Spring
+springframeworkBootVersion="3.0.6"
+springDependencyManagementVersion="1.1.0"
+pluginSpringVersion="1.8.10"
+pluginJpa="1.8.10"
+springdocOpenapiUiVersion="2.0.0"
+
+# Kafka
+kafkaVersion="3.4.0"
+
+pluginShadow="7.1.2"
+yandexCloudSdkVersion="2.5.1"
+
+# Rabbit
+rabbitVersion="5.13.1"
+
+[libraries]
+ktor-client-core= { module="io.ktor:ktor-client-core", version.ref= "ktorVersion" }
+ktor-client-okhttp= { module="io.ktor:ktor-client-okhttp", version.ref= "ktorVersion" }
+ktor-client-okhttp-jvm= { module="io.ktor:ktor-client-okhttp-jvm", version.ref= "ktorVersion" }
+
+kotlinx-coroutines-core= { module="org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref="coroutinesVersion" }
+kotlinx-coroutines-reactor= { module="org.jetbrains.kotlinx:kotlinx-coroutines-reactor", version.ref="coroutinesVersion" }
+kotlinx-coroutines-reactive= { module="org.jetbrains.kotlinx:kotlinx-coroutines-reactive", version.ref="coroutinesVersion" }
+kotlinx-coroutines-test= { module="org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref="coroutinesVersion" }
+
+kotlinx-serialization-core= { module="org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref="serializationVersion" }
+kotlinx-serialization-json= { module="org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref="serializationVersion" }
+
+kotlinx-atomicfu= { module="org.jetbrains.kotlinx:atomicfu", version.ref="atomicfuVersion" }
+kotlinx-datetime= { module="org.jetbrains.kotlinx:kotlinx-datetime", version.ref="datetimeVersion" }
+
+testcontainers= { module="org.testcontainers:testcontainers", version.ref="testContainersVersion"}
+
+logback= { module="ch.qos.logback:logback-classic", version.ref="logbackVersion" }
+logback-logstash= { module="net.logstash.logback:logstash-logback-encoder", version.ref="logbackEncoderVersion" }
+logback-kafka= { module="com.github.danielwegener:logback-kafka-appender", version.ref="logbackKafkaVersion" }
+kotlin-logging= { module="io.github.microutils:kotlin-logging-jvm", version.ref="kotlinLoggingJvmVersion" }
+kermit= { module="co.touchlab:kermit", version.ref="kermitLoggerVersion" }
+janino= { module="org.codehaus.janino:janino", version.ref="janinoVersion" }
+
+kotest-runner-junit5= { module="io.kotest:kotest-runner-junit5", version.ref="kotestVersion" }
+kotest-assertions-core= { module="io.kotest:kotest-assertions-core", version.ref="kotestVersion" }
+kotest-framework-datatest= { module="io.kotest:kotest-framework-datatest", version.ref="kotestVersion" }
+kotest-property= { module="io.kotest:kotest-property", version.ref="kotestVersion" }
+
+jackson-module-kotlin= {module="com.fasterxml.jackson.module:jackson-module-kotlin", version.ref="jacksonVersion"}
+jackson-datatype-jsr310= {module="com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref="jacksonVersion"}
+jackson-databind= {module="com.fasterxml.jackson.core:jackson-databind", version.ref="jacksonVersion"}
+jackson-core= {module="com.fasterxml.jackson.core:jackson-core", version.ref="jacksonVersion"}
+jackson-annotations= {module="com.fasterxml.jackson.core:jackson-annotations", version.ref="jacksonVersion"}
+
+yandex-java-sdk-functions= {module="com.yandex.cloud:java-sdk-functions", version.ref="yandexCloudSdkVersion"}
+
+amqp-client= { module="com.rabbitmq:amqp-client", version.ref="rabbitVersion" }
+kafka-clients= { module="org.apache.kafka:kafka-clients", version.ref="kafkaVersion" }
+
+ktor-core= { module="io.ktor:ktor-server-core", version.ref="ktorVersion" }
+ktor-cio= { module="io.ktor:ktor-server-cio", version.ref="ktorVersion" }
+ktor-auto-head-response= { module="io.ktor:ktor-server-auto-head-response", version.ref="ktorVersion" }
+ktor-caching-headers= { module="io.ktor:ktor-server-caching-headers", version.ref="ktorVersion" }
+ktor-websockets= { module="io.ktor:ktor-server-websockets", version.ref="ktorVersion" }
+ktor-config-yaml= { module="io.ktor:ktor-server-config-yaml", version.ref="ktorVersion" }
+ktor-content-negotiation= { module="io.ktor:ktor-server-content-negotiation", version.ref="ktorVersion" }
+ktor-auth= { module="io.ktor:ktor-server-auth", version.ref="ktorVersion" }
+ktor-auth-jwt= { module="io.ktor:ktor-server-auth-jwt", version.ref="ktorVersion" }
+ktor-cors= { module="io.ktor:ktor-server-cors", version.ref="ktorVersion" }
+ktor-test-host= { module="io.ktor:ktor-server-test-host", version.ref="ktorVersion" }
+ktor-netty= { module="io.ktor:ktor-server-netty", version.ref="ktorVersion" }
+ktor-jackson= { module="io.ktor:ktor-serialization-jackson", version.ref="ktorVersion" }
+ktor-json= { module="io.ktor:ktor-serialization-kotlinx-json", version.ref="ktorVersion" }
+ktor-locations= { module="io.ktor:ktor-server-locations", version.ref="ktorVersion" }
+ktor-call-logging= { module="io.ktor:ktor-server-call-logging", version.ref="ktorVersion" }
+ktor-default-headers= { module="io.ktor:ktor-server-default-headers", version.ref="ktorVersion" }
+
+spring-doc= { module="org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref="springdocOpenapiUiVersion" }
+spring-mockk= { module="com.ninja-squad:springmockk", version="3.0.1" }
+
+[plugins]
+kotlin-jvm= { id="org.jetbrains.kotlin.jvm", version.ref="kotlinVersion"}
+kotlin-serialization= { id="org.jetbrains.kotlin.plugin.serialization", version.ref="kotlinVersion"}
+ktor= { id="io.ktor.plugin", version.ref="ktorVersion"}
+
+openapi-generator= {id="org.openapi.generator", version.ref="openapiVersion" }
+
+bmuschko-docker-java-application= {id="com.bmuschko.docker-java-application", version.ref="bmuschkoVersion" }
+bmuschko-docker-spring-boot-application= {id="com.bmuschko.docker-spring-boot-application", version.ref="bmuschkoVersion" }
+bmuschko-docker-docker-remote-api= {id="com.bmuschko.docker-docker-remote-api", version.ref="bmuschkoVersion" }
+
+spring-boot= {id="org.springframework.boot", version.ref="springframeworkBootVersion" }
+spring-dependency= {id="io.spring.dependency-management", version.ref="springDependencyManagementVersion" }
+spring-kotlin= {id="org.jetbrains.kotlin.plugin.spring", version.ref="pluginSpringVersion" }
+spring-kotlin-jpa= {id="org.jetbrains.kotlin.plugin.jpa", version.ref="pluginJpa" }
+
+shadow= {id="com.github.johnrengelman.shadow", version.ref="pluginShadow" }

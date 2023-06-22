@@ -1,13 +1,12 @@
 plugins {
-    kotlin("jvm")
-    id("org.openapi.generator")
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.openapi.generator)
 }
 
 dependencies {
-    val jacksonVersion: String by project
     implementation(kotlin("stdlib"))
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
+    implementation(libs.jackson.module.kotlin)
+    implementation(libs.jackson.datatype.jsr310)
     testImplementation(kotlin("test-junit"))
 }
 

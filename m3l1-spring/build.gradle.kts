@@ -1,9 +1,9 @@
 plugins {
-    id("org.springframework.boot")
-    id("io.spring.dependency-management")
-    kotlin("jvm")
-    kotlin("plugin.spring")
-    kotlin("plugin.jpa")
+    alias(libs.plugins.spring.boot)
+    alias(libs.plugins.spring.dependency)
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.spring.kotlin)
+    alias(libs.plugins.spring.kotlin.jpa)
 }
 
 dependencies {
@@ -18,7 +18,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     runtimeOnly("com.h2database:h2")
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springdocOpenapiUiVersion")
+    implementation(libs.spring.doc)
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }

@@ -1,21 +1,15 @@
 plugins {
-    kotlin("jvm")
+    alias(libs.plugins.kotlin.jvm)
     java
-    id ("com.bmuschko.docker-java-application")
+    alias(libs.plugins.bmuschko.docker.java.application)
 }
 
 dependencies {
-    val rabbitVersion: String by project
-    val jacksonVersion: String by project
-    val logbackVersion: String by project
-    val coroutinesVersion: String by project
-    val testContainersVersion: String by project
-
     implementation(kotlin("stdlib"))
-    implementation("com.rabbitmq:amqp-client:$rabbitVersion")
-    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
-    implementation("ch.qos.logback:logback-classic:$logbackVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
+    implementation(libs.amqp.client)
+    implementation(libs.jackson.databind)
+    implementation(libs.logback)
+    implementation(libs.kotlinx.coroutines.core)
 
     // transport models common
     implementation(project(":ok-marketplace-common"))
@@ -32,7 +26,7 @@ dependencies {
     // other
     implementation(project(":ok-marketplace-lib-logging-logback"))
 
-    testImplementation("org.testcontainers:rabbitmq:$testContainersVersion")
+    testImplementation(libs.testcontainers)
     testImplementation(kotlin("test"))
     testImplementation(project(":ok-marketplace-stubs"))
 }

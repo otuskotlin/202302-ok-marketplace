@@ -9,9 +9,6 @@ kotlin {
     macosArm64 { }
 
     sourceSets {
-        val coroutinesVersion: String by project
-        val datetimeVersion: String by project
-
         all { languageSettings.optIn("kotlin.RequiresOptIn") }
 
         @Suppress("UNUSED_VARIABLE")
@@ -21,7 +18,7 @@ kotlin {
 
                 api(project(":ok-marketplace-api-log1"))
                 implementation(project(":ok-marketplace-common"))
-                implementation("org.jetbrains.kotlinx:kotlinx-datetime:$datetimeVersion")
+                implementation(libs.kotlinx.datetime)
             }
         }
         @Suppress("UNUSED_VARIABLE")
@@ -30,7 +27,7 @@ kotlin {
                 implementation(kotlin("test-common"))
                 implementation(kotlin("test-annotations-common"))
 
-                api("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion")
+                api(libs.kotlinx.coroutines.test)
             }
         }
         @Suppress("UNUSED_VARIABLE")

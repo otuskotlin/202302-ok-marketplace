@@ -1,23 +1,19 @@
-val jacksonVersion: String by project
-val serializationVersion: String by project
-val yandexCloudSdkVersion: String by project
-
 plugins {
-    kotlin("jvm")
-    id("com.github.johnrengelman.shadow")
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.shadow)
 }
 
 dependencies {
-    implementation("com.yandex.cloud:java-sdk-functions:$yandexCloudSdkVersion")
+    implementation(libs.yandex.java.sdk.functions)
     implementation(kotlin("stdlib-jdk8"))
 
-    implementation("com.fasterxml.jackson.core:jackson-core:$jacksonVersion")
-    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
-    implementation("com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+    implementation(libs.jackson.core)
+    implementation(libs.jackson.databind)
+    implementation(libs.jackson.annotations)
+    implementation(libs.jackson.module.kotlin)
 
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
+    implementation(libs.kotlinx.serialization.core)
+    implementation(libs.kotlinx.serialization.json)
 
     // transport models
     implementation(project(":ok-marketplace-common"))

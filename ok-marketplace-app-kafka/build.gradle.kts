@@ -1,7 +1,7 @@
 plugins {
     application
-    kotlin("jvm")
-    id("com.bmuschko.docker-java-application")
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.bmuschko.docker.java.application)
 }
 
 application {
@@ -26,18 +26,13 @@ docker {
 }
 
 dependencies {
-    val kafkaVersion: String by project
-    val coroutinesVersion: String by project
-    val atomicfuVersion: String by project
-    val logbackVersion: String by project
-    val kotlinLoggingJvmVersion: String by project
-    implementation("org.apache.kafka:kafka-clients:$kafkaVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
-    implementation("org.jetbrains.kotlinx:atomicfu:$atomicfuVersion")
+    implementation(libs.kafka.clients)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.atomicfu)
 
     // log
-    implementation("ch.qos.logback:logback-classic:$logbackVersion")
-    implementation("io.github.microutils:kotlin-logging-jvm:$kotlinLoggingJvmVersion")
+    implementation(libs.logback)
+    implementation(libs.kotlin.logging)
 
     // transport models
     implementation(project(":ok-marketplace-common"))
