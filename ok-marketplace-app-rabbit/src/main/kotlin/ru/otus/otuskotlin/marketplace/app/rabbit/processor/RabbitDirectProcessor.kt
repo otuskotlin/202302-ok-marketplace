@@ -2,6 +2,7 @@ package ru.otus.otuskotlin.marketplace.app.rabbit.processor
 
 import com.rabbitmq.client.Channel
 import com.rabbitmq.client.Delivery
+import ru.otus.otuskotlin.marketplace.api.logs.mapper.toLog
 import ru.otus.otuskotlin.marketplace.api.v1.apiV1Mapper
 import ru.otus.otuskotlin.marketplace.api.v1.models.IRequest
 import ru.otus.otuskotlin.marketplace.app.rabbit.RabbitProcessorBase
@@ -9,6 +10,7 @@ import ru.otus.otuskotlin.marketplace.app.rabbit.config.RabbitConfig
 import ru.otus.otuskotlin.marketplace.app.rabbit.config.RabbitExchangeConfiguration
 import ru.otus.otuskotlin.marketplace.app.rabbit.config.corSettings
 import ru.otus.otuskotlin.marketplace.biz.MkplAdProcessor
+import ru.otus.otuskotlin.marketplace.biz.process
 import ru.otus.otuskotlin.marketplace.common.MkplCorSettings
 import ru.otus.otuskotlin.marketplace.common.models.MkplCommand
 import ru.otus.otuskotlin.marketplace.mappers.v1.fromTransport
@@ -41,6 +43,7 @@ class RabbitDirectProcessorV1(
                 }.also {
                     println("published")
                 }
-            })
+            },
+            { logId -> toLog(logId) })
     }
 }

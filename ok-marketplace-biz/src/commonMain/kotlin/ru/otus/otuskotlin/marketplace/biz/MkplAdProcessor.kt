@@ -1,7 +1,5 @@
 package ru.otus.otuskotlin.marketplace.biz
 
-import kotlinx.datetime.Clock
-import ru.otus.otuskotlin.marketplace.api.logs.mapper.toLog
 import ru.otus.otuskotlin.marketplace.biz.groups.operation
 import ru.otus.otuskotlin.marketplace.biz.groups.stubs
 import ru.otus.otuskotlin.marketplace.biz.statemachine.computeAdState
@@ -9,56 +7,13 @@ import ru.otus.otuskotlin.marketplace.biz.validation.*
 import ru.otus.otuskotlin.marketplace.biz.workers.*
 import ru.otus.otuskotlin.marketplace.common.MkplContext
 import ru.otus.otuskotlin.marketplace.common.MkplCorSettings
-import ru.otus.otuskotlin.marketplace.common.helpers.asMkplError
-import ru.otus.otuskotlin.marketplace.common.helpers.fail
 import ru.otus.otuskotlin.marketplace.common.models.MkplAdId
 import ru.otus.otuskotlin.marketplace.common.models.MkplCommand
 import ru.otus.otuskotlin.marketplace.cor.rootChain
 import ru.otus.otuskotlin.marketplace.cor.worker
-import ru.otus.otuskotlin.marketplace.logging.common.IMpLogWrapper
 
 class MkplAdProcessor(val settings: MkplCorSettings) {
     suspend fun exec(ctx: MkplContext) = BusinessChain.exec(ctx.apply { this.settings = this@MkplAdProcessor.settings })
-
-    suspend fun <T> process(
-        logger: IMpLogWrapper,
-        logId: String,
-        command: MkplCommand,
-        fromTransport: suspend (MkplContext) -> Unit,
-        sendResponse: suspend (MkplContext) -> T): T {
-
-        val ctx = MkplContext(
-            timeStart = Clock.System.now(),
-        )
-        var realCommand = command
-
-        return try {
-            logger.doWithLogging(id = logId) {
-                fromTransport(ctx)
-                realCommand = ctx.command
-
-                logger.info(
-                    msg = "$realCommand request is got",
-                    data = ctx.toLog("${logId}-got")
-                )
-                exec(ctx)
-                logger.info(
-                    msg = "$realCommand request is handled",
-                    data = ctx.toLog("${logId}-handled")
-                )
-                sendResponse(ctx)
-            }
-        } catch (e: Throwable) {
-            logger.doWithLogging(id = "${logId}-failure") {
-                logger.error(msg = "$realCommand handling failed")
-
-                ctx.command = realCommand
-                ctx.fail(e.asMkplError())
-                exec(ctx)
-                sendResponse(ctx)
-            }
-        }
-    }
 
     companion object {
         private val BusinessChain = rootChain<MkplContext> {

@@ -8,9 +8,11 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import ru.otus.otuskotlin.marketplace.api.logs.mapper.toLog
 import ru.otus.otuskotlin.marketplace.api.v1.apiV1Mapper
 import ru.otus.otuskotlin.marketplace.api.v1.models.IRequest
 import ru.otus.otuskotlin.marketplace.app.MkplAppSettings
+import ru.otus.otuskotlin.marketplace.biz.process
 import ru.otus.otuskotlin.marketplace.common.MkplContext
 import ru.otus.otuskotlin.marketplace.common.helpers.isUpdatableCommand
 import ru.otus.otuskotlin.marketplace.common.models.MkplCommand
@@ -65,7 +67,8 @@ class WsHandlerV1 {
                             sessions.clear()
                         }
                     }
-                })
+                },
+                { logId -> toLog(logId) })
         }.collect()
     }
 }

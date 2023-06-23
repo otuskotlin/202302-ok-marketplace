@@ -13,6 +13,7 @@ import org.springframework.web.reactive.function.BodyInserters
 import ru.otus.otuskotlin.markeplace.springapp.config.CorConfig
 import ru.otus.otuskotlin.marketplace.api.v1.models.*
 import ru.otus.otuskotlin.marketplace.biz.MkplAdProcessor
+import ru.otus.otuskotlin.marketplace.biz.process
 import ru.otus.otuskotlin.marketplace.common.MkplContext
 import ru.otus.otuskotlin.marketplace.mappers.v1.*
 
@@ -72,8 +73,6 @@ internal class AdControllerTest {
         requestObj: Req,
         responseObj: Res,
     ) {
-        coEvery { processor.process<Res>(any(), any(), any(), any(), any()) } returns responseObj
-
         webClient
             .post()
             .uri(url)
@@ -86,6 +85,6 @@ internal class AdControllerTest {
                 println("RESPONSE: $it")
                 assertThat(it).isEqualTo(responseObj)
             }
-        coVerify { processor.process<Res>(any(), any(), any(), any(), any()) }
+        coVerify { processor.exec(any()) }
     }
 }

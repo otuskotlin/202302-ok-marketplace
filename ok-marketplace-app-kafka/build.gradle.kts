@@ -38,6 +38,7 @@ dependencies {
     // log
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("io.github.microutils:kotlin-logging-jvm:$kotlinLoggingJvmVersion")
+    implementation(project(":ok-marketplace-mappers-log1"))
 
     // transport models
     implementation(project(":ok-marketplace-common"))
