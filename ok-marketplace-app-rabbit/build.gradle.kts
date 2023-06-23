@@ -31,6 +31,7 @@ dependencies {
     implementation(project(":ok-marketplace-biz"))
     // other
     implementation(project(":ok-marketplace-lib-logging-logback"))
+    implementation(project(":ok-marketplace-mappers-log1"))
 
     testImplementation("org.testcontainers:rabbitmq:$testContainersVersion")
     testImplementation(kotlin("test"))
