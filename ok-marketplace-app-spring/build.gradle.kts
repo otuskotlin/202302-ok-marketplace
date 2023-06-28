@@ -46,6 +46,7 @@ dependencies {
 
     // other
     implementation(project(":ok-marketplace-lib-logging-logback"))
+    implementation(project(":ok-marketplace-mappers-log1"))
 
     // tests
     testImplementation("org.springframework.boot:spring-boot-starter-test")

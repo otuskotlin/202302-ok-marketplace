@@ -5,7 +5,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import kotlinx.datetime.Clock
 import mu.KotlinLogging
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -13,7 +12,9 @@ import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.errors.WakeupException
+import ru.otus.otuskotlin.marketplace.api.logs.mapper.toLog
 import ru.otus.otuskotlin.marketplace.biz.MkplAdProcessor
+import ru.otus.otuskotlin.marketplace.biz.process
 import ru.otus.otuskotlin.marketplace.common.MkplContext
 import ru.otus.otuskotlin.marketplace.common.MkplCorSettings
 import ru.otus.otuskotlin.marketplace.common.models.MkplCommand
@@ -34,7 +35,7 @@ class AppKafkaConsumer(
     private val config: AppKafkaConfig,
     consumerStrategies: List<ConsumerStrategy>,
     setting: MkplCorSettings = corSettings,
-    private val processor: MkplAdProcessor = MkplAdProcessor(),
+    private val processor: MkplAdProcessor = MkplAdProcessor(setting),
     private val consumer: Consumer<String, String> = config.createKafkaConsumer(),
     private val producer: Producer<String, String> = config.createKafkaProducer()
 ) {
@@ -61,7 +62,8 @@ class AppKafkaConsumer(
 
                     processor.process(logger, "kafka", MkplCommand.NONE,
                         { ctx -> strategy.deserialize(record.value(), ctx) },
-                        { ctx -> sendResponse(ctx, strategy, outputTopic) })
+                        { ctx -> sendResponse(ctx, strategy, outputTopic) },
+                        { logId -> toLog(logId) })
                 }
             }
         } catch (ex: WakeupException) {

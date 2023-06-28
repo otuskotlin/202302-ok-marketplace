@@ -2,7 +2,7 @@ package ru.otus.otuskotlin.marketplace.app.rabbit.processor
 
 import com.rabbitmq.client.Channel
 import com.rabbitmq.client.Delivery
-import kotlinx.datetime.Clock
+import ru.otus.otuskotlin.marketplace.api.logs.mapper.toLog
 import ru.otus.otuskotlin.marketplace.api.v1.apiV1Mapper
 import ru.otus.otuskotlin.marketplace.api.v1.models.IRequest
 import ru.otus.otuskotlin.marketplace.app.rabbit.RabbitProcessorBase
@@ -10,12 +10,9 @@ import ru.otus.otuskotlin.marketplace.app.rabbit.config.RabbitConfig
 import ru.otus.otuskotlin.marketplace.app.rabbit.config.RabbitExchangeConfiguration
 import ru.otus.otuskotlin.marketplace.app.rabbit.config.corSettings
 import ru.otus.otuskotlin.marketplace.biz.MkplAdProcessor
-import ru.otus.otuskotlin.marketplace.common.MkplContext
+import ru.otus.otuskotlin.marketplace.biz.process
 import ru.otus.otuskotlin.marketplace.common.MkplCorSettings
-import ru.otus.otuskotlin.marketplace.common.helpers.addError
-import ru.otus.otuskotlin.marketplace.common.helpers.asMkplError
 import ru.otus.otuskotlin.marketplace.common.models.MkplCommand
-import ru.otus.otuskotlin.marketplace.common.models.MkplState
 import ru.otus.otuskotlin.marketplace.mappers.v1.fromTransport
 import ru.otus.otuskotlin.marketplace.mappers.v1.toTransportAd
 
@@ -24,7 +21,7 @@ class RabbitDirectProcessorV1(
     config: RabbitConfig,
     processorConfig: RabbitExchangeConfiguration,
     setting: MkplCorSettings = corSettings,
-    private val processor: MkplAdProcessor = MkplAdProcessor(),
+    private val processor: MkplAdProcessor = MkplAdProcessor(setting),
 ) : RabbitProcessorBase(config, processorConfig) {
 
     private val logger = setting.loggerProvider.logger(RabbitDirectProcessorV1::class)
@@ -46,6 +43,7 @@ class RabbitDirectProcessorV1(
                 }.also {
                     println("published")
                 }
-            })
+            },
+            { logId -> toLog(logId) })
     }
 }

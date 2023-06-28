@@ -4,6 +4,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import ru.otus.otuskotlin.marketplace.biz.MkplAdProcessor
 import ru.otus.otuskotlin.marketplace.common.MkplContext
+import ru.otus.otuskotlin.marketplace.common.MkplCorSettings
 import ru.otus.otuskotlin.marketplace.common.models.*
 import ru.otus.otuskotlin.marketplace.common.stubs.MkplStubs
 import ru.otus.otuskotlin.marketplace.stubs.MkplAdStub
@@ -15,7 +16,7 @@ import kotlin.test.fail
 @OptIn(ExperimentalCoroutinesApi::class)
 class AdSearchStubTest {
 
-    private val processor = MkplAdProcessor()
+    private val processor = MkplAdProcessor(MkplCorSettings())
     val filter = MkplAdFilter(searchString = "bolt")
 
     @Test
