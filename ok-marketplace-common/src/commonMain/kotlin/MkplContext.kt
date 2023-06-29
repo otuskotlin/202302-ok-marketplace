@@ -2,6 +2,7 @@ package ru.otus.otuskotlin.marketplace.common
 
 import kotlinx.datetime.Instant
 import ru.otus.otuskotlin.marketplace.common.models.*
+import ru.otus.otuskotlin.marketplace.common.repo.IAdRepository
 import ru.otus.otuskotlin.marketplace.common.stubs.MkplStubs
 
 data class MkplContext(
@@ -26,4 +27,11 @@ data class MkplContext(
 
     var adResponse: MkplAd = MkplAd(),
     var adsResponse: MutableList<MkplAd> = mutableListOf(),
+
+
+    var adRepo: IAdRepository = IAdRepository.NONE,
+    var adRepoPrepare: MkplAd = MkplAd(),
+    var adRepoRead: MkplAd = MkplAd(),
+    var adRepoDone: MkplAd = MkplAd(),
+    var adsRepoDone: MutableList<MkplAd> = mutableListOf(),
 )

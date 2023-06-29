@@ -59,7 +59,6 @@ kotlin {
                 implementation(kotlin("stdlib-common"))
                 implementation(ktor("core")) // "io.ktor:ktor-server-core:$ktorVersion"
 
-                implementation(ktor("core")) // "io.ktor:ktor-server-core:$ktorVersion"
                 implementation(ktor("cio")) // "io.ktor:ktor-server-cio:$ktorVersion"
                 implementation(ktor("auth")) // "io.ktor:ktor-server-auth:$ktorVersion"
                 implementation(ktor("auto-head-response")) // "io.ktor:ktor-server-auto-head-response:$ktorVersion"
@@ -71,16 +70,16 @@ kotlin {
                 implementation(ktor("websockets")) // "io.ktor:ktor-websockets:$ktorVersion"
                 implementation(ktor("auth")) // "io.ktor:ktor-auth:$ktorVersion"
 
+                implementation(project(":ok-marketplace-repo-in-memory"))
+                implementation(project(":ok-marketplace-repo-stubs"))
                 implementation(project(":ok-marketplace-common"))
                 implementation(project(":ok-marketplace-biz"))
 
                 // v2 api
                 implementation(project(":ok-marketplace-api-v2-kmp"))
                 implementation(project(":ok-marketplace-mappers-v2"))
-
                 // Stubs
                 implementation(project(":ok-marketplace-stubs"))
-
                 implementation(project(":ok-marketplace-lib-logging-kermit"))
                 implementation(project(":ok-marketplace-api-log1"))
                 implementation(project(":ok-marketplace-mappers-log1"))
@@ -96,7 +95,7 @@ kotlin {
                 implementation(kotlin("test"))
                 implementation(kotlin("test-common"))
                 implementation(kotlin("test-annotations-common"))
-
+                implementation(project(":ok-marketplace-repo-tests"))
                 implementation(ktor("test-host"))
                 implementation(ktor("content-negotiation", prefix = "client-"))
                 implementation(ktor("websockets", prefix = "client-"))
@@ -120,8 +119,7 @@ kotlin {
                 implementation(ktor("auto-head-response"))
                 implementation(ktor("cors")) // "io.ktor:ktor-cors:$ktorVersion"
                 implementation(ktor("default-headers")) // "io.ktor:ktor-cors:$ktorVersion"
-                implementation(ktor("cors")) // "io.ktor:ktor-cors:$ktorVersion"
-                implementation(ktor("auto-head-response"))
+
 
                 implementation(ktor("websockets")) // "io.ktor:ktor-websockets:$ktorVersion"
                 implementation(ktor("auth")) // "io.ktor:ktor-auth:$ktorVersion"

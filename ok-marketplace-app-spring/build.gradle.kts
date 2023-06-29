@@ -25,7 +25,11 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:${coroutinesVersion}")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
+    // Repository
+    implementation(project(":ok-marketplace-repo-in-memory"))
 
+    // Stubs
+    implementation(project(":ok-marketplace-repo-stubs"))
     // transport models
     implementation(project(":ok-marketplace-common"))
 

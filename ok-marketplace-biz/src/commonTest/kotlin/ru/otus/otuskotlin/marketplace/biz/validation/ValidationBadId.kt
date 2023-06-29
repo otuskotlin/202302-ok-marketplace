@@ -5,6 +5,7 @@ import kotlinx.coroutines.test.runTest
 import ru.otus.otuskotlin.marketplace.biz.MkplAdProcessor
 import ru.otus.otuskotlin.marketplace.common.MkplContext
 import ru.otus.otuskotlin.marketplace.common.models.*
+import ru.otus.otuskotlin.marketplace.stubs.MkplAdStub
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
@@ -15,13 +16,7 @@ fun validationIdCorrect(command: MkplCommand, processor: MkplAdProcessor) = runT
         command = command,
         state = MkplState.NONE,
         workMode = MkplWorkMode.TEST,
-        adRequest = MkplAd(
-            id = MkplAdId("123-234-abc-ABC"),
-            title = "abc",
-            description = "abc",
-            adType = MkplDealSide.DEMAND,
-            visibility = MkplVisibility.VISIBLE_PUBLIC,
-        ),
+        adRequest = MkplAdStub.get(),
     )
     processor.exec(ctx)
     assertEquals(0, ctx.errors.size)
@@ -30,17 +25,13 @@ fun validationIdCorrect(command: MkplCommand, processor: MkplAdProcessor) = runT
 
 @OptIn(ExperimentalCoroutinesApi::class)
 fun validationIdTrim(command: MkplCommand, processor: MkplAdProcessor) = runTest {
+    val adRequest = MkplAdStub.get()
+    adRequest.id = MkplAdId(" \n\t 666 \n\t ")
     val ctx = MkplContext(
         command = command,
         state = MkplState.NONE,
         workMode = MkplWorkMode.TEST,
-        adRequest = MkplAd(
-            id = MkplAdId(" \n\t 123-234-abc-ABC \n\t "),
-            title = "abc",
-            description = "abc",
-            adType = MkplDealSide.DEMAND,
-            visibility = MkplVisibility.VISIBLE_PUBLIC,
-        ),
+        adRequest = adRequest,
     )
     processor.exec(ctx)
     assertEquals(0, ctx.errors.size)
@@ -49,17 +40,13 @@ fun validationIdTrim(command: MkplCommand, processor: MkplAdProcessor) = runTest
 
 @OptIn(ExperimentalCoroutinesApi::class)
 fun validationIdEmpty(command: MkplCommand, processor: MkplAdProcessor) = runTest {
+    val adRequest = MkplAdStub.get()
+    adRequest.id = MkplAdId("")
     val ctx = MkplContext(
         command = command,
         state = MkplState.NONE,
         workMode = MkplWorkMode.TEST,
-        adRequest = MkplAd(
-            id = MkplAdId(""),
-            title = "abc",
-            description = "abc",
-            adType = MkplDealSide.DEMAND,
-            visibility = MkplVisibility.VISIBLE_PUBLIC,
-        ),
+        adRequest = adRequest,
     )
     processor.exec(ctx)
     assertEquals(1, ctx.errors.size)
@@ -71,17 +58,13 @@ fun validationIdEmpty(command: MkplCommand, processor: MkplAdProcessor) = runTes
 
 @OptIn(ExperimentalCoroutinesApi::class)
 fun validationIdFormat(command: MkplCommand, processor: MkplAdProcessor) = runTest {
+    val adRequest = MkplAdStub.get()
+    adRequest.id = MkplAdId("!@#\$%^&*(),.{}")
     val ctx = MkplContext(
         command = command,
         state = MkplState.NONE,
         workMode = MkplWorkMode.TEST,
-        adRequest = MkplAd(
-            id = MkplAdId("!@#\$%^&*(),.{}"),
-            title = "abc",
-            description = "abc",
-            adType = MkplDealSide.DEMAND,
-            visibility = MkplVisibility.VISIBLE_PUBLIC,
-        ),
+        adRequest = adRequest
     )
     processor.exec(ctx)
     assertEquals(1, ctx.errors.size)
