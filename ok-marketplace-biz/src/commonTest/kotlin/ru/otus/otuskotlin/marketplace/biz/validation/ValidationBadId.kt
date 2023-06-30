@@ -16,7 +16,9 @@ fun validationIdCorrect(command: MkplCommand, processor: MkplAdProcessor) = runT
         command = command,
         state = MkplState.NONE,
         workMode = MkplWorkMode.TEST,
-        adRequest = MkplAdStub.get(),
+        adRequest = MkplAdStub.prepareResult {
+            lock = MkplAdLock("123-234-abc-ABC")
+        }
     )
     processor.exec(ctx)
     assertEquals(0, ctx.errors.size)
@@ -31,7 +33,14 @@ fun validationIdTrim(command: MkplCommand, processor: MkplAdProcessor) = runTest
         command = command,
         state = MkplState.NONE,
         workMode = MkplWorkMode.TEST,
-        adRequest = adRequest,
+        adRequest = MkplAd(
+            id = MkplAdId(" \n\t 123-234-abc-ABC \n\t "),
+            title = "abc",
+            description = "abc",
+            adType = MkplDealSide.DEMAND,
+            visibility = MkplVisibility.VISIBLE_PUBLIC,
+            lock = MkplAdLock("123-234-abc-ABC"),
+        ),
     )
     processor.exec(ctx)
     assertEquals(0, ctx.errors.size)
@@ -46,7 +55,14 @@ fun validationIdEmpty(command: MkplCommand, processor: MkplAdProcessor) = runTes
         command = command,
         state = MkplState.NONE,
         workMode = MkplWorkMode.TEST,
-        adRequest = adRequest,
+        adRequest = MkplAd(
+            id = MkplAdId(""),
+            title = "abc",
+            description = "abc",
+            adType = MkplDealSide.DEMAND,
+            visibility = MkplVisibility.VISIBLE_PUBLIC,
+            lock = MkplAdLock("123-234-abc-ABC"),
+        ),
     )
     processor.exec(ctx)
     assertEquals(1, ctx.errors.size)
@@ -64,7 +80,14 @@ fun validationIdFormat(command: MkplCommand, processor: MkplAdProcessor) = runTe
         command = command,
         state = MkplState.NONE,
         workMode = MkplWorkMode.TEST,
-        adRequest = adRequest
+        adRequest = MkplAd(
+            id = MkplAdId("!@#\$%^&*(),.{}"),
+            title = "abc",
+            description = "abc",
+            adType = MkplDealSide.DEMAND,
+            visibility = MkplVisibility.VISIBLE_PUBLIC,
+            lock = MkplAdLock("123-234-abc-ABC"),
+        ),
     )
     processor.exec(ctx)
     assertEquals(1, ctx.errors.size)
