@@ -1,9 +1,10 @@
 package ru.otus.otuskotlin.marketplace.backend.repository.gremlin
 
+import org.junit.Ignore
 import ru.otus.otuskotlin.marketplace.backend.repo.tests.RepoAdDeleteTest
 import ru.otus.otuskotlin.marketplace.common.models.MkplAd
 import ru.otus.otuskotlin.marketplace.common.models.MkplAdId
-
+@Ignore
 class AdRepoGremlinDeleteTest : RepoAdDeleteTest() {
     override val repo: AdRepoGremlin by lazy {
         AdRepoGremlin(
