@@ -3,7 +3,7 @@ package ru.otus.otuskotlin.marketplace.backend.repository.gremlin
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.utility.DockerImageName
-import java.time.Duration
+
 
 object ArcadeDbContainer {
     val username: String = "root"
