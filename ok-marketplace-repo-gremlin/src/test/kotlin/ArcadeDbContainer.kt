@@ -24,7 +24,7 @@ object ArcadeDbContainer {
             start()
             println("ARCADE: http://${host}:${getMappedPort(2480)}")
             println("ARCADE: http://${host}:${getMappedPort(2424)}")
-//            Thread.sleep(5000)
+           Thread.sleep(5000)
             println(this.logs)
             println("RUNNING?: ${this.isRunning}")
         }
