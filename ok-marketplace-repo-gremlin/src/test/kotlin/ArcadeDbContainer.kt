@@ -20,7 +20,6 @@ object ArcadeDbContainer {
 //            withEnv("arcadedb.server.plugins", "GremlinServer:com.arcadedb.server.gremlin.GremlinServerPlugin")
 //            withEnv("arcadedb.server.defaultDatabases", "OpenBeer[root]{import:https://github.com/ArcadeData/arcadedb-datasets/raw/main/orientdb/OpenBeer.gz}")
             waitingFor(Wait.forLogMessage(".*ArcadeDB Server started.*\\n", 1))
-            withStartupTimeout(Duration.ofMinutes(5))
             start()
             println("ARCADE: http://${host}:${getMappedPort(2480)}")
             println("ARCADE: http://${host}:${getMappedPort(2424)}")
