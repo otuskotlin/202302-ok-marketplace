@@ -1,6 +1,7 @@
 package ru.otus.otuskotlin.markeplace.springapp.config
 
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -20,7 +21,8 @@ class CorConfig {
     @Bean
     fun loggerProvider(): MpLoggerProvider = MpLoggerProvider { mpLoggerLogback(it) }
 
-    @Bean
+    @Bean(name = ["prodRepository"])
+    @ConditionalOnProperty(value = ["prod-repository"], havingValue = "sql")
     fun prodRepository(sqlProperties: SqlProperties) = RepoAdSQL(sqlProperties)
 
     @Bean
@@ -31,14 +33,14 @@ class CorConfig {
 
     @Bean
     fun corSettings(
-        @Qualifier("prodRepository") prodRepository: IAdRepository,
+        @Qualifier("prodRepository") prodRepository: IAdRepository?,
         @Qualifier("testRepository") testRepository: IAdRepository,
         @Qualifier("stubRepository") stubRepository: IAdRepository,
     ): MkplCorSettings = MkplCorSettings(
         loggerProvider = loggerProvider(),
         repoStub = stubRepository,
         repoTest = testRepository,
-        repoProd = prodRepository,
+        repoProd = prodRepository ?: testRepository,
     )
 
     @Bean
