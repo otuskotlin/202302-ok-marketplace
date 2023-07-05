@@ -47,6 +47,15 @@ dependencies {
     // other
     implementation(project(":ok-marketplace-lib-logging-logback"))
     implementation(project(":ok-marketplace-mappers-log1"))
+    implementation(project(":ok-marketplace-api-log1"))
+
+    // Repository
+    implementation(project(":ok-marketplace-repo-in-memory"))
+
+    // Repo
+    implementation(project(":ok-marketplace-repo-stubs"))
+    implementation(project(":ok-marketplace-repo-in-memory"))
+    implementation(project(":ok-marketplace-repo-postgresql"))
 
     // tests
     testImplementation("org.springframework.boot:spring-boot-starter-test")
