@@ -9,7 +9,7 @@ object ArcadeDbContainer {
     val username: String = "root"
     val password: String = "root_root"
     val container by lazy {
-        GenericContainer(DockerImageName.parse("arcadedata/arcadedb:23.4.1")).apply {
+        GenericContainer(DockerImageName.parse("arcadedata/arcadedb:${ARCADEDB_VERSION}")).apply {
             withExposedPorts(2480, 2424, 8182)
             withEnv(
                 "JAVA_OPTS", "-Darcadedb.server.rootPassword=$password " +
