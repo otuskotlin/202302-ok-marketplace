@@ -42,7 +42,7 @@ class AdRepoGremlin(
 
     private val cluster by lazy {
         Cluster.build().apply {
-            addContactPoints(*hosts.split(Regex("\\s*,\\s*")).toTypedArray())
+            addContactPoints(hosts)
             port(port)
             credentials(user, pass)
             enableSsl(enableSsl)
