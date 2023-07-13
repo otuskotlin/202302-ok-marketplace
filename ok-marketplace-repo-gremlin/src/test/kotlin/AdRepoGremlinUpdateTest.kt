@@ -1,6 +1,5 @@
 package ru.otus.otuskotlin.marketplace.backend.repository.gremlin
 
-import org.junit.Ignore
 import ru.otus.otuskotlin.marketplace.backend.repo.tests.RepoAdUpdateTest
 import ru.otus.otuskotlin.marketplace.common.models.MkplAd
 
