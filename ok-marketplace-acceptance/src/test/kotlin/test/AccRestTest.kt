@@ -23,4 +23,5 @@ open class AccRestTestBase(dockerCompose: DockerCompose, runWebSocket: Boolean) 
 
 class AccRestSpringTest : AccRestTestBase(SpringDockerCompose, true)
 // я пока не разобрался, почему websocket-тесты не работают с ktor. Выключил
+
 class AccRestKtorTest : AccRestTestBase(KtorDockerCompose, false)

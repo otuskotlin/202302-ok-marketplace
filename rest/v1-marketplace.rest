@@ -14,8 +14,7 @@ Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhZC11c2Vyc
     "adType": "demand"
   },
   "debug": {
-    "mode": "stub",
-    "stub": "success"
+    "mode": "test"
   }
 }
 

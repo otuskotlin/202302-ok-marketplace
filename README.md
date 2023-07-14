@@ -112,8 +112,7 @@ Marketplace -- это площадка, на которой пользовате
 [//]: # (3. [ok-marketplace-repo-postgresql]&#40;ok-marketplace-repo-postgresql&#41; - Репозиторий на базе PostgreSQL)
 
 [//]: # (4. [ok-marketplace-repo-cassandra]&#40;ok-marketplace-repo-cassandra&#41; - Репозиторий на базе Cassandra)
-
-[//]: # (5. [ok-marketplace-repo-gremlin]&#40;ok-marketplace-repo-gremlin&#41; - Репозиторий на базе Apache TinkerPop Gremlin и ArcadeDb)
+5. [ok-marketplace-repo-gremlin](ok-marketplace-repo-gremlin) - Репозиторий на базе Apache TinkerPop Gremlin и ArcadeDb
 
 [//]: # (### Функции &#40;эндпониты&#41;)
 
