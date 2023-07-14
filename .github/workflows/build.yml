@@ -27,7 +27,7 @@ on:
 jobs:
   # This workflow contains a single job called "build"
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 #    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
@@ -47,7 +47,8 @@ jobs:
 
       - name: Install curl-dev
         run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev
-
+      - name: Clear existing docker image cache
+        run: docker image prune -af
       - name: Run Tests
         uses: gradle/gradle-build-action@v2
         with:

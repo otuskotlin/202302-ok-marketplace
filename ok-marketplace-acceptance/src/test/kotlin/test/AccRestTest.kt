@@ -32,4 +32,3 @@ open class AccRestKtorTest : BaseFunSpec(KtorDockerCompose, {
         testStubApiV2(websocketClient, "websocket ")
     }
 })
-
