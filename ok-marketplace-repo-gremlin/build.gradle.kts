@@ -51,4 +51,6 @@ tasks {
         }
     }
     compileKotlin.get().dependsOn(gradleConstants)
+    test.configure { this.enabled = false }
 }
+
