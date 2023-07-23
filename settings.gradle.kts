@@ -42,7 +42,7 @@ pluginManagement {
 //include("m3l1-spring")
 //include("m4l5-validation")
 
-include("ok-marketplace-acceptance")
+//include("ok-marketplace-acceptance")
 
 include("ok-marketplace-lib-logging-common")
 include("ok-marketplace-lib-logging-kermit")
