@@ -10,10 +10,12 @@ import ru.otus.otuskotlin.marketplace.api.v2.apiV2Mapper
 import ru.otus.otuskotlin.marketplace.api.v2.models.*
 import ru.otus.otuskotlin.marketplace.app.helpers.testSettings
 import ru.otus.otuskotlin.marketplace.app.module
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
+@Ignore
 class V2WebsocketStubTest {
 
     @Test

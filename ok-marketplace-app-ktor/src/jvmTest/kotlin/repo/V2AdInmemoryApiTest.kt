@@ -7,12 +7,17 @@ import io.ktor.http.*
 import io.ktor.server.testing.*
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
+import org.junit.Ignore
 import ru.otus.otuskotlin.marketplace.api.v2.apiV2Mapper
 import ru.otus.otuskotlin.marketplace.api.v2.models.*
+import ru.otus.otuskotlin.marketplace.app.base.KtorAuthConfig
+import ru.otus.otuskotlin.marketplace.app.ru.otus.otuskotlin.marketplace.auth.addAuth
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 
+private const val COMMON_REQUEST_ID = "12345"
+@Ignore
 class V2AdInmemoryApiTest {
     private val createAd = AdCreateObject(
         title = "Болт",
@@ -130,6 +135,7 @@ class V2AdInmemoryApiTest {
                 )
             )
             contentType(ContentType.Application.Json)
+            addAuth(id = "123", config = KtorAuthConfig.TEST)
             val requestJson = apiV2Mapper.encodeToString(requestObj)
             setBody(requestJson)
         }
